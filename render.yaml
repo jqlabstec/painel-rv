@@ -1,0 +1,14 @@
+# Render Blueprint (opcional): site estático, sem build.
+services:
+  - type: web
+    name: painel-rv
+    runtime: static
+    buildCommand: ""
+    staticPublishPath: .
+    headers:
+      - path: /js/*
+        name: Cache-Control
+        value: no-cache
+      - path: /css/*
+        name: Cache-Control
+        value: no-cache

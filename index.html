@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Painel RV · Operações</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<!-- leitura/gravação de Excel no navegador -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+<div id="app"></div>
+
+<!-- 0. configuração da nuvem (Supabase) -->
+<script src="js/config.js"></script>
+<!-- 1. núcleo: registro de operações + utilidades -->
+<script src="js/nucleo.js"></script>
+<!-- 2. uma operação por arquivo (regras + cálculo + tela de regras) -->
+<script src="js/operacoes/chubb.js"></script>
+<script src="js/operacoes/credsystem.js"></script>
+<script src="js/operacoes/axs.js"></script>
+<script src="js/operacoes/guerrilha.js"></script>
+<!-- 3. dados, cálculo e importação -->
+<script src="js/nuvem.js"></script>
+<script src="js/armazenamento.js"></script>
+<script src="js/motor.js"></script>
+<script src="js/importacao.js"></script>
+<script src="js/demo.js"></script>
+<!-- 4. telas -->
+<script src="js/telas/login.js"></script>
+<script src="js/telas/colaborador.js"></script>
+<script src="js/telas/master.js"></script>
+<!-- 5. inicialização -->
+<script src="js/app.js"></script>
+</body>
+</html>
