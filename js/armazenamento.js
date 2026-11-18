@@ -29,7 +29,9 @@ async function loadDB(){
     try{ const r=await NUVEM.ler(); if(r&&r.data){ pub=r.data; PUBLICADO={em:r.atualizado_em, por:r.atualizado_por, versaoDados:r.data.atualizadoEm}; } }
     catch(e){ ERRO_NUVEM=e.message; }
   } else {
-    try{ const r=await fetch('rv.json',{cache:'no-store'}); if(r.ok){ pub=await r.json(); PUBLICADO={em:pub.atualizadoEm, por:'rv.json', versaoDados:pub.atualizadoEm}; } }catch(e){}
+    for(const arq of ['premiacao.json','rv.json']){   // rv.json: nome antigo, ainda aceito
+      try{ const r=await fetch(arq,{cache:'no-store'}); if(r.ok){ pub=await r.json(); PUBLICADO={em:pub.atualizadoEm, por:arq, versaoDados:pub.atualizadoEm}; break; } }catch(e){}
+    }
   }
   try{ const s=localStorage.getItem(LS); if(s) local=JSON.parse(s); }catch(e){}
   if(!pub) pub = NUVEM.ativa ? emptyDB() : (local||gerarDemo());

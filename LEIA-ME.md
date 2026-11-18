@@ -1,6 +1,6 @@
 # Painel RV multi-operação
 
-Roda 100% no navegador. Não tem back-end nem banco de dados: tudo fica no arquivo `rv.json`.
+Roda 100% no navegador. Não tem back-end nem banco de dados: tudo fica no arquivo `premiacao.json`.
 
 ## Estrutura
 
@@ -13,7 +13,7 @@ js/operacoes/
   credsystem.js            idem CredSystem
   axs.js                   idem AXS Energia
   guerrilha.js             idem Guerrilha (Trade Claro)
-js/armazenamento.js        leitura/gravação do rv.json e do localStorage
+js/armazenamento.js        leitura/gravação do premiacao.json e do localStorage
 js/motor.js                apuração genérica: promotores → gestores → estornos → remanescentes
 js/importacao.js           leitura das planilhas (HC, vendas, estornos, indicadores)
 js/demo.js                 dados de demonstração
@@ -45,10 +45,10 @@ Suba a pasta inteira (sem build, é site estático). Abrir o index.html direto d
    - Colunas de prêmio (PREM..., RV ...) são ignoradas: a ferramenta calcula. PREMIACAO TTOAL, se vier, alimenta a aba **Conferência**.
 4. **Conferência**: compara o calculado com a PREMIACAO TTOAL da planilha, pessoa a pessoa.
 5. Confira **Visão geral**, **Ranking** e **Folha de RV** (exporta Excel).
-6. **Dados (JSON)** → **Baixar rv.json** → coloque na raiz desta pasta → publique de novo.
+6. **Dados (JSON)** → **Baixar premiacao.json** → coloque na raiz desta pasta → publique de novo.
 7. Promotores e supervisores entram com as 2 primeiras letras do nome + matrícula (ex.: `JO70231`).
 
-Sem `rv.json` na pasta, o painel abre com dados de demonstração.
+Sem `premiacao.json` na pasta, o painel abre com dados de demonstração.
 
 ## Atenção
-O `rv.json` fica acessível para quem souber o endereço, e a chave identifica a pessoa, mas não é uma senha.
+O `premiacao.json` fica acessível para quem souber o endereço, e a chave identifica a pessoa, mas não é uma senha.

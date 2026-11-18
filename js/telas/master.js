@@ -5,7 +5,7 @@ function linhasMaster(){
   return ps.filter(r=>UI.op==='todas'||r.op===UI.op);
 }
 function viewMaster(){
-  const tabs=[['geral','Visão geral'],['ranking','Ranking'],['folha','Folha de premiação'],['conferencia','Conferência'],['indicadores','Indicadores do mês'],['importar','Importar bases'],['regras','Regras'],['dados','Dados (JSON)']];
+  const tabs=[['geral','Visão geral'],['ranking','Ranking'],['folha','Folha de premiação'],['conferencia','Conferência'],['indicadores','Indicadores do mês'],['importar','Importar bases'],['regras','Regras'],['dados','Dados (backup)']];
   const head=`<div class="top"><div class="topin">
       <div class="brand"><div class="dot"><i></i></div><div><b>Painel de Premiação · Master</b><small>Todas as operações</small></div></div>
       <select class="in" id="selOp" style="padding:6px 10px;font-size:12px"><option value="todas">Todas as operações</option>${Object.entries(OPS).map(([k,o])=>`<option value="${k}" ${UI.op===k?'selected':''}>${o.nome}</option>`).join('')}</select>
@@ -95,7 +95,7 @@ function mImportar(){
     <div class="row"><input type="file" accept=".xlsx,.xls,.csv" data-imp="${t}" style="font-size:12px;max-width:100%"><button class="btn sm ghost" data-mod="${t}">Baixar modelo</button></div>
     <div class="cnt" style="margin-top:8px">${cnt}</div></div>`;
   return `<div class="eyebrow">Importação</div><h2 style="font-size:28px;letter-spacing:-.03em;margin:4px 0 4px">Subir as bases de apuração</h2>
-  <p style="color:var(--mut);margin:0 0 14px;font-size:12px;line-height:1.6">Importou, calculou. As colunas são reconhecidas pelo nome (aceita variações como MAT, QTD, VALOR_PLANO). Use os modelos para garantir. ${NUVEM.ativa?'Depois de conferir, clique em <b>Publicar apuração</b>, no topo: os colaboradores passam a ver na hora.':'Depois, vá em <b>Dados (JSON)</b> e baixe o <b>rv.json</b> para publicar para os promotores.'}</p>
+  <p style="color:var(--mut);margin:0 0 14px;font-size:12px;line-height:1.6">Importou, calculou. As colunas são reconhecidas pelo nome (aceita variações como MAT, QTD, VALOR_PLANO). Use os modelos para garantir. ${NUVEM.ativa?'Depois de conferir, clique em <b>Publicar apuração</b>, no topo: os colaboradores passam a ver na hora.':'Depois, vá em <b>Dados (JSON)</b> e baixe o <b>premiacao.json</b> para publicar para os promotores.'}</p>
   <div class="blk"><div class="row"><b>Competência da apuração:</b><input type="month" class="in" id="impMes" value="${mesPadrao}"><label class="row" style="gap:6px;font-size:12px"><input type="checkbox" id="subst" checked> Substituir os dados existentes (desmarque para somar)</label></div></div>
   <div class="up destaque">${card('folha','★ Folha de indicadores (modelo consolidado) · recomendado','A planilha da folha consolidada: uma linha por pessoa com MÊS, MATRICULA, NOME, OPERACAO, CARGO, SUPERVISOR, COORDENADOR, REGIONAL, PERFIL e os indicadores de cada operação. Monta a base HC e os indicadores do mês de uma vez. Pode subir o arquivo inteiro: a aba com MATRICULA é encontrada sozinha. A coluna PREMIACAO TTOAL, se vier, aparece na aba Conferência.',`${DB.hc.length} pessoas na base · ${(M.indicadores||[]).length} linhas de indicadores em ${mesNome(mesPadrao)}`).replace('<div class="up">','<div>')}</div>
   <div class="eyebrow" style="margin:18px 0 8px">Bases detalhadas (opcional, venda a venda)</div>
@@ -110,7 +110,7 @@ function mImportar(){
 function mRegras(){
   const R=DB.config.rules;
   const tabela=(tit,cols,rows)=>`<div class="blk"><h3>${tit}</h3><div style="height:10px"></div><div class="tblwrap"><table class="ft sm"><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td class="num">${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
-  let h=`<div class="eyebrow">Regras de premiação</div><h2 style="font-size:28px;letter-spacing:-.03em;margin:4px 0 4px">Tabelas em uso</h2><p style="color:var(--mut);margin:0 0 14px;font-size:12px">Padrão em js/operacoes/*.js. Para ajustar só neste ambiente, edite o JSON abaixo e salve (recalcula na hora e vai junto no rv.json).</p>`;
+  let h=`<div class="eyebrow">Regras de premiação</div><h2 style="font-size:28px;letter-spacing:-.03em;margin:4px 0 4px">Tabelas em uso</h2><p style="color:var(--mut);margin:0 0 14px;font-size:12px">Padrão em js/operacoes/*.js. Para ajustar só neste ambiente, edite o JSON abaixo e salve (recalcula na hora e vai junto na publicação).</p>`;
   for(const [k,o] of Object.entries(OPS)){
     if(UI.op!=='todas'&&UI.op!==k) continue;
     h+=`<div class="sec" style="margin-top:18px"><h2 style="color:${o.c}">${o.nome}</h2>${TELA_REGRAS[k]&&R[k]?TELA_REGRAS[k](R[k],tabela):'<p>Sem tabela.</p>'}</div>`;
@@ -123,14 +123,14 @@ function mRegras(){
 }
 function mDados(){
   const ms=mesesDisponiveis();
-  return `<div class="eyebrow">Armazenamento</div><h2 style="font-size:28px;letter-spacing:-.03em;margin:4px 0 4px">Arquivo rv.json</h2>
+  return `<div class="eyebrow">Armazenamento</div><h2 style="font-size:28px;letter-spacing:-.03em;margin:4px 0 4px">Arquivo de dados (premiacao.json)</h2>
   <p style="color:var(--mut);margin:0 0 14px;font-size:12px;line-height:1.6">Tudo fica em um único JSON: base HC, indicadores e vendas de cada competência, regras e indicadores ligados por mês.<br>
   ${NUVEM.ativa?`<b>Publicação:</b> você trabalha num rascunho neste navegador; o botão <b>Publicar apuração</b> grava no Supabase e os colaboradores veem na hora. Cada publicação fica guardada no histórico do Supabase (tabela rv_historico). ${PUBLICADO?`Última publicação: ${new Date(PUBLICADO.em).toLocaleString('pt-BR')} por ${esc(PUBLICADO.por||'')}.`:'Nada publicado ainda.'} Baixar o JSON aqui serve de backup.`
-  :`<b>Modo local:</b> importe as bases → baixe o rv.json → coloque na pasta do site → publique de novo. Para publicar sem deploy, preencha js/config.js com o Supabase (veja DEPLOY.md).`}</p>
+  :`<b>Modo local:</b> importe as bases → baixe o premiacao.json → coloque na pasta do site → publique de novo. Para publicar sem deploy, preencha js/config.js com o Supabase (veja DEPLOY.md).`}</p>
   <div class="grid3">
     <div class="blk"><h3>Base atual</h3><div class="d">${DB.hc.length} pessoas · ${ms.length} competência(s): ${ms.map(mesCurto).join(', ')||'—'}<br>Atualizado em ${new Date(DB.atualizadoEm).toLocaleString('pt-BR')}${DB.demo?'<br><b>Demonstração</b>':''}</div>
-      <div class="row"><button class="btn sm" id="dlJson">Baixar rv.json</button><button class="btn sm ghost" id="cpJson">Copiar JSON</button></div></div>
-    <div class="blk"><h3>Carregar rv.json</h3><div class="d">Abre um rv.json salvo (backup ou de outro computador).</div><input type="file" accept=".json" id="upJson" style="font-size:12px"></div>
+      <div class="row"><button class="btn sm" id="dlJson">Baixar premiacao.json</button><button class="btn sm ghost" id="cpJson">Copiar JSON</button></div></div>
+    <div class="blk"><h3>Carregar premiacao.json</h3><div class="d">Abre um premiacao.json salvo (backup ou de outro computador).</div><input type="file" accept=".json" id="upJson" style="font-size:12px"></div>
     <div class="blk"><h3>Competências</h3><div class="d">Apagar uma competência importada errada.</div>
       <div class="row"><select class="in" id="delMesSel">${ms.map(m=>`<option value="${m}">${mesNome(m)}</option>`).join('')}</select><button class="btn sm danger" id="delMes">Apagar</button></div></div>
     <div class="blk"><h3>Recomeçar</h3><div class="d">Limpa tudo neste navegador (mantém as regras).</div><div class="row"><button class="btn sm danger" id="zerar">Zerar base</button><button class="btn sm ghost" id="demo">Carregar demonstração</button></div></div>
@@ -170,9 +170,9 @@ function bindMaster(){
   $('#resetRegras')&&($('#resetRegras').onclick=()=>confirmar('Voltar todas as regras ao padrão da planilha Modelos_de_RV?',()=>{DB.config.rules=clone(DEFAULT_RULES);saveLocal();render();}));
   $('#salvaChave')&&($('#salvaChave').onclick=()=>{ const v=norm($('#novaChave').value).replace(/\s/g,''); if(v.length<6){$('#rmsg').textContent='Use pelo menos 6 caracteres.';return;} DB.config.masterKey=v; saveLocal(); render(); });
   // dados
-  $('#dlJson')&&($('#dlJson').onclick=()=>baixar('rv.json',JSON.stringify(DB)));
+  $('#dlJson')&&($('#dlJson').onclick=()=>baixar('premiacao.json',JSON.stringify(DB)));
   $('#cpJson')&&($('#cpJson').onclick=async()=>{ try{ await navigator.clipboard.writeText(JSON.stringify(DB)); $('#dmsg').textContent='JSON copiado. Cole em um arquivo rv.json.'; }catch(e){ $('#dmsg').textContent='Não consegui copiar neste navegador.'; } });
-  $('#upJson')&&($('#upJson').onchange=async e=>{ try{ const j=JSON.parse(await e.target.files[0].text()); if(!j.hc||!j.meses) throw new Error('arquivo não parece um rv.json'); DB=j; DB.config=Object.assign(clone(DEFAULT_CONFIG),j.config||{}); saveLocal(); UI.mes=null; render(); }catch(err){ $('#dmsg').textContent='Erro: '+err.message; } });
+  $('#upJson')&&($('#upJson').onchange=async e=>{ try{ const j=JSON.parse(await e.target.files[0].text()); if(!j.hc||!j.meses) throw new Error('arquivo não parece um backup do painel'); DB=j; DB.config=Object.assign(clone(DEFAULT_CONFIG),j.config||{}); saveLocal(); UI.mes=null; render(); }catch(err){ $('#dmsg').textContent='Erro: '+err.message; } });
   $('#delMes')&&($('#delMes').onclick=()=>{ const m=$('#delMesSel').value; if(!m) return; confirmar(`Apagar a competência ${mesNome(m)}? Vendas, estornos e indicadores desse mês saem da base.`,()=>{ delete DB.meses[m]; saveLocal(); UI.mes=null; render(); }); });
   $('#zerar')&&($('#zerar').onclick=()=>confirmar('Apagar HC e todas as competências deste navegador? As regras são mantidas.',()=>{ const c=DB.config; DB=emptyDB(); DB.config=c; saveLocal(); UI.mes=null; render(); }));
   bindIndicadores(); bindConferencia();
