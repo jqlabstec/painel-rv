@@ -51,14 +51,14 @@ registrarOperacao('axs', {
     const rv = base*f.p;
     const nx = tab.slice(i+1).find(r=>r.p>f.p);
     return { qtdVendas:vendas.length||null, producao:base,
-      componentes:[{ind:'producao', label:'RV mensalidades', detail:`${R$(base)} × ${pctLbl(f.p)}`, valor:rv}],
+      componentes:[{ind:'producao', label:'Premiação mensalidades', detail:`${R$(base)} × ${pctLbl(f.p)}`, valor:rv}],
       vendasDet: vendas.map(v=>({...v, valorRv:(v.valor||0)*f.p, calc:`${R$(v.valor||0)} × ${pctLbl(f.p)}`})),
       faixas:[{ ind:'producao', titulo:`Mensalidades: qual % você recebe (${hp?'High Performance':'Convencional'})`,
         desc:'O percentual depende do total de mensalidades do mês e vale sobre o total.',
-        kpis:[['Mensalidades no mês',R$(base)],['% aplicado',pctLbl(f.p)],['RV',R$(rv)]],
+        kpis:[['Mensalidades no mês',R$(base)],['% aplicado',pctLbl(f.p)],['Premiação',R$(rv)]],
         cols:['Mensalidades no mês','% sobre o total'],
         rows:tab.map((r,k)=>({cells:[faixaLbl(r,v=>R$0(v)),pctLbl(r.p)],you:k===i,nx:nx&&r===nx})),
-        dica: nx?`Faltam <b>${R$(nx.ini-base)}</b> em mensalidades para chegar a ${R$0(nx.ini)}. Aí o % sobe para <b>${pctLbl(nx.p)}</b> (RV de ${R$(rv)} para ${R$(nx.ini*nx.p)}).`:'', max:!nx }],
+        dica: nx?`Faltam <b>${R$(nx.ini-base)}</b> em mensalidades para chegar a ${R$0(nx.ini)}. Aí o % sobe para <b>${pctLbl(nx.p)}</b> (premiação de ${R$(rv)} para ${R$(nx.ini*nx.p)}).`:'', max:!nx }],
       estimaEstorno:e=>(e.valorVenda||0)*f.p };
   },
 
@@ -82,7 +82,7 @@ registrarOperacao('axs', {
     if(S.gatilhoIcm && ctx.A('icm_receita') && premIcm===0){
       comps.forEach(c=>{ if(c.ind!=='icm_receita' && c.valor){ c.detail+=' · não pago: sem prêmio de %ICM'; c.valor=0; } });
     } else {
-      const t=sum(comps,c=>c.valor); if(t<0) comps.push({label:'Ajuste (mínimo zero)', detail:'o deflator não deixa o RV negativo', valor:-t});
+      const t=sum(comps,c=>c.valor); if(t<0) comps.push({label:'Ajuste (mínimo zero)', detail:'o deflator não deixa a premiação negativa', valor:-t});
     }
     return { producao:mens, componentes:comps,
       faixas:[

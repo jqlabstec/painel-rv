@@ -36,7 +36,7 @@ Suba a pasta inteira (sem build, é site estático). Abrir o index.html direto d
 ## Ciclo de apuração do mês
 1. Entre com a chave master (padrão `MASTER2026`; troque em **Regras**).
 2. **Indicadores do mês**: escolha a competência e a operação e ligue só o que vale no mês (o mês sem configuração herda a do último mês configurado).
-3. **Importar bases** → **Folha de indicadores** (modelo `modelos/modelo_folha_rv.xlsx`, mesmo layout da aba FOLHA RV). Pode subir o arquivo inteiro: a aba com MATRICULA é encontrada sozinha.
+3. **Importar bases** → **Folha de indicadores** (modelo `modelos/modelo_folha_premiacao.xlsx`, mesmo layout da aba FOLHA RV). Pode subir o arquivo inteiro: a aba com MATRICULA é encontrada sozinha.
    - Identificação: MÊS, MATRICULA, NOME, OPERACAO, CARGO, SUPERVISOR, COORDENADOR, REGIONAL, PERFIL.
    - AXS: MENSALIDADES (promotor); MENSALIDADES, META MENSALIDADES, %ICM MENSALIDADES, FTE, %QUADRO, FTE ZERADOS <30 DIAS (supervisor, uma linha por regional).
    - Chubb: SEG CHUB, ABS CHUBB (promotor); PROD SEG CHUBB (supervisor/coordenador).

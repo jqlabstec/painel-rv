@@ -5,9 +5,9 @@ function linhasMaster(){
   return ps.filter(r=>UI.op==='todas'||r.op===UI.op);
 }
 function viewMaster(){
-  const tabs=[['geral','Visão geral'],['ranking','Ranking'],['folha','Folha de RV'],['conferencia','Conferência'],['indicadores','Indicadores do mês'],['importar','Importar bases'],['regras','Regras'],['dados','Dados (JSON)']];
+  const tabs=[['geral','Visão geral'],['ranking','Ranking'],['folha','Folha de premiação'],['conferencia','Conferência'],['indicadores','Indicadores do mês'],['importar','Importar bases'],['regras','Regras'],['dados','Dados (JSON)']];
   const head=`<div class="top"><div class="topin">
-      <div class="brand"><div class="dot"><i></i></div><div><b>Painel RV · Master</b><small>Todas as operações</small></div></div>
+      <div class="brand"><div class="dot"><i></i></div><div><b>Painel de Premiação · Master</b><small>Todas as operações</small></div></div>
       <select class="in" id="selOp" style="padding:6px 10px;font-size:12px"><option value="todas">Todas as operações</option>${Object.entries(OPS).map(([k,o])=>`<option value="${k}" ${UI.op===k?'selected':''}>${o.nome}</option>`).join('')}</select>
       ${mesSelect()}${NUVEM.ativa?blocoPublicar():''}<button class="btn sm ghost" id="sair">Sair</button>
     </div><div class="tabs">${tabs.map(([k,l])=>`<button class="tab ${UI.mtab===k?'on':''}" data-mt="${k}">${l}</button>`).join('')}</div></div>`;
@@ -37,43 +37,43 @@ function mGeral(){
   const mx=Math.max(1,...porOp.map(x=>x.bruto));
   const top=prom.slice().sort((a,b)=>b.final-a.final).slice(0,5);
   // distribuição por faixa
-  return `<div class="eyebrow">Apuração ${mesNome(UI.mes)}</div><h2 style="font-size:28px;letter-spacing:-.03em;margin:4px 0 14px">Quanto estou pagando de RV</h2>
+  return `<div class="eyebrow">Apuração ${mesNome(UI.mes)}</div><h2 style="font-size:28px;letter-spacing:-.03em;margin:4px 0 14px">Quanto estou pagando de premiação</h2>
   <div class="hero" style="grid-template-columns:1fr 1.3fr"><div class="l">
-    <div class="lbl">RV FINAL A PAGAR</div><div class="val num"><small>R$</small>${N(T.final,2)}</div>
-    <div class="sub">${pagos} pessoa(s) com RV · ${UI.op==='todas'?'todas as operações':OPS[UI.op].nome}${var_!=null?` · <b>${var_>=0?'▲':'▼'} ${P(Math.abs(var_))}</b> vs ${mesNome(mesAnterior(UI.mes))}`:''}</div>
+    <div class="lbl">PREMIAÇÃO FINAL A PAGAR</div><div class="val num"><small>R$</small>${N(T.final,2)}</div>
+    <div class="sub">${pagos} pessoa(s) com premiação · ${UI.op==='todas'?'todas as operações':OPS[UI.op].nome}${var_!=null?` · <b>${var_>=0?'▲':'▼'} ${P(Math.abs(var_))}</b> vs ${mesNome(mesAnterior(UI.mes))}`:''}</div>
     <div class="stack"><i style="width:${T.final/Math.max(1,T.bruto)*100}%;background:#fff"></i><i style="width:${(T.est+T.rem)/Math.max(1,T.bruto)*100}%;background:#f87171"></i></div>
     <div class="leg"><span>Pago ${P(T.final/Math.max(1,T.bruto))}</span><span style="color:#fca5a5">Estornado ${P((T.est+T.rem)/Math.max(1,T.bruto))}</span></div>
   </div><div class="r">
-    <div class="ln"><div><b>RV bruto</b><small>antes dos estornos</small></div><div class="v num">${R$(T.bruto)}</div></div>
+    <div class="ln"><div><b>Premiação bruta</b><small>antes dos estornos</small></div><div class="v num">${R$(T.bruto)}</div></div>
     <div class="ln"><div><b>Estornos / quebras da competência</b><small>${sum(L,r=>r.estornos.length)} lançamentos</small></div><div class="v neg num">-${R$(T.est)}</div></div>
     <div class="ln"><div><b>Estornos remanescentes</b><small>saldos de ${mesNome(mesAnterior(UI.mes))}</small></div><div class="v neg num">-${R$(T.rem)}</div></div>
-    <div class="ln"><div><b>Saldo a carregar</b><small>estorno maior que o RV, desconta no próximo mês</small></div><div class="v num">${R$(T.saldo)}</div></div>
-    <div class="ln tot"><div><b>RV final a pagar</b><small>${mesNome(UI.mes)}</small></div><div class="v num">${R$(T.final)}</div></div>
+    <div class="ln"><div><b>Saldo a carregar</b><small>estorno maior que a premiação, desconta no próximo mês</small></div><div class="v num">${R$(T.saldo)}</div></div>
+    <div class="ln tot"><div><b>Premiação final a pagar</b><small>${mesNome(UI.mes)}</small></div><div class="v num">${R$(T.final)}</div></div>
   </div></div>
-  <section class="sec"><div class="eyebrow">Por operação</div><h2>Onde está o RV</h2><p>Bruto, estornos e final de cada ambiente. Barra: RV bruto (cheio) e parte estornada (vermelho).</p>
+  <section class="sec"><div class="eyebrow">Por operação</div><h2>Onde está a premiação</h2><p>Bruto, estornos e final de cada ambiente. Barra: premiação bruta (cheio) e parte estornada (vermelho).</p>
   <div class="grid2">${porOp.map(x=>`<div class="opc" style="--oc:${x.o.c}"><h4><span>${x.o.nome}</span><span style="color:var(--mut);font-weight:600">${x.n} promotores</span></h4>
     <div class="big num">${R$(x.final)}</div>
     <div class="bar" style="margin:8px 0;display:flex"><i style="width:${(x.bruto-x.est)/mx*100}%;background:${x.o.c};border-radius:0"></i><i style="width:${x.est/mx*100}%;background:#f87171;border-radius:0"></i></div>
-    <div class="rows"><div><span>RV bruto</span><b class="num">${R$(x.bruto)}</b></div><div><span>Estornos (comp. + remanescentes)</span><b class="num neg">-${R$(x.est)}</b></div>
-    <div><span>Vendas / aprovações / produção</span><b class="num">${N(x.vendas)}</b></div><div><span>RV médio por promotor</span><b class="num">${R$(x.final/Math.max(1,x.n))}</b></div>
-    <div><span>Promotores sem RV (abaixo da faixa)</span><b>${x.zer}</b></div>
-    ${x.k==='credsystem'?`<div><span>Faturamento RV (cliente)</span><b class="num">${R$(x.fat)}</b></div><div><span>Margem RV (fat. − repasse)</span><b class="num pos">${R$(x.fat-x.bruto)}</b></div>`:''}</div></div>`).join('')}</div></section>
-  <section class="sec"><div class="eyebrow">Destaques</div><h2>Top 5 do mês</h2><p>Maiores RVs finais entre promotores.</p>
+    <div class="rows"><div><span>Premiação bruta</span><b class="num">${R$(x.bruto)}</b></div><div><span>Estornos (comp. + remanescentes)</span><b class="num neg">-${R$(x.est)}</b></div>
+    <div><span>Vendas / aprovações / produção</span><b class="num">${N(x.vendas)}</b></div><div><span>Premiação média por promotor</span><b class="num">${R$(x.final/Math.max(1,x.n))}</b></div>
+    <div><span>Promotores sem premiação (abaixo da faixa)</span><b>${x.zer}</b></div>
+    ${x.k==='credsystem'?`<div><span>Faturamento premiação (cliente)</span><b class="num">${R$(x.fat)}</b></div><div><span>Margem premiação (fat. − repasse)</span><b class="num pos">${R$(x.fat-x.bruto)}</b></div>`:''}</div></div>`).join('')}</div></section>
+  <section class="sec"><div class="eyebrow">Destaques</div><h2>Top 5 do mês</h2><p>Maiores premiações finais entre promotores.</p>
   <div class="blk">${rankTable(top)}</div></section>`;
 }
 function rankTable(lista){
   const mx=Math.max(1,...lista.map(x=>x.final));
-  return `<table class="dt rk"><thead><tr><th>#</th><th>Promotor</th><th>Operação</th><th class="r">Vendas</th><th class="r">Estornos</th><th style="width:22%"></th><th class="r">RV final</th></tr></thead><tbody>
+  return `<table class="dt rk"><thead><tr><th>#</th><th>Promotor</th><th>Operação</th><th class="r">Vendas</th><th class="r">Estornos</th><th style="width:22%"></th><th class="r">Premiação final</th></tr></thead><tbody>
   ${lista.map((x,k)=>`<tr data-ver="${esc(x.mat)}"><td><span class="medal ${k<3?'m'+(k+1):''}">${k+1}</span></td><td><b>${esc(x.nome)}</b><br><small style="color:var(--mut)">${esc(x.sup||'')}</small></td><td><span class="sw" style="background:${OPS[x.op].c}"></span>${OPS[x.op].nome}</td><td class="r num">${x.op==='axs'?R$0(x.producao):N(x.qtdVendas)}</td><td class="r num neg">${x.estComp+x.rem?'-'+R$(x.estComp+x.rem):'—'}</td><td><div class="bar"><i style="width:${x.final/mx*100}%;background:${OPS[x.op].c}"></i></div></td><td class="r num"><b>${R$(x.final)}</b></td></tr>`).join('')||'<tr><td colspan=7 class="empty">Sem dados</td></tr>'}
   </tbody></table>`;
 }
 function mRanking(){
   const L=linhasMaster().filter(r=>r.cargo==='promotor').sort((a,b)=>b.final-a.final);
   const est=L.slice().sort((a,b)=>(b.estComp+b.rem)-(a.estComp+a.rem)).filter(x=>x.estComp+x.rem>0).slice(0,10);
-  return `<div class="eyebrow">Ranking · ${mesNome(UI.mes||'2026-01')}</div><h2 style="font-size:28px;letter-spacing:-.03em;margin:4px 0 4px">RV por promotor</h2><p style="color:var(--mut);margin:0 0 14px;font-size:12px">Clique em um promotor para abrir o painel dele como ele vê.</p>
+  return `<div class="eyebrow">Ranking · ${mesNome(UI.mes||'2026-01')}</div><h2 style="font-size:28px;letter-spacing:-.03em;margin:4px 0 4px">Premiação por promotor</h2><p style="color:var(--mut);margin:0 0 14px;font-size:12px">Clique em um promotor para abrir o painel dele como ele vê.</p>
   <div class="blk">${rankTable(L)}</div>
   <section class="sec"><div class="eyebrow">Atenção</div><h2>Quem mais estornou</h2><p>Top 10 em valor de estornos e quebras (competência + remanescentes).</p>
-  <div class="blk"><table class="dt"><thead><tr><th>Promotor</th><th>Operação</th><th class="r">Lançamentos</th><th class="r">RV bruto</th><th class="r">Estornos</th><th class="r">% do bruto</th></tr></thead><tbody>
+  <div class="blk"><table class="dt"><thead><tr><th>Promotor</th><th>Operação</th><th class="r">Lançamentos</th><th class="r">Premiação bruta</th><th class="r">Estornos</th><th class="r">% do bruto</th></tr></thead><tbody>
   ${est.map(x=>`<tr data-ver="${esc(x.mat)}"><td><b>${esc(x.nome)}</b></td><td>${OPS[x.op].nome}</td><td class="r">${x.estornos.length}</td><td class="r num">${R$(x.bruto)}</td><td class="r num neg">-${R$(x.estComp+x.rem)}</td><td class="r">${x.bruto?P((x.estComp+x.rem)/x.bruto):'—'}</td></tr>`).join('')||'<tr><td colspan=6 class="empty">Nenhum estorno.</td></tr>'}
   </tbody></table></div></section>`;
 }
@@ -81,8 +81,8 @@ function mFolha(){
   let L=linhasMaster();
   const q=norm(UI.busca); if(q) L=L.filter(r=>norm(r.nome+' '+r.mat+' '+r.sup).includes(q));
   const {k,d}=UI.sort; L.sort((a,b)=>{const x=a[k],y=b[k]; return (typeof x==='number'?x-y:String(x).localeCompare(String(y)))*d;});
-  const cols=[['mat','Matrícula'],['nome','Nome'],['op','Operação'],['cargo','Cargo'],['sup','Supervisor'],['bruto','RV bruto',1],['estComp','Estornos',1],['rem','Remanesc.',1],['final','RV final',1],['saldoProx','Saldo próx.',1]];
-  return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><div><div class="eyebrow">Folha de RV · ${UI.mes?mesNome(UI.mes):''}</div><h2 style="font-size:24px;margin:4px 0 0">${L.length} pessoas · ${R$(sum(L,r=>r.final))}</h2></div>
+  const cols=[['mat','Matrícula'],['nome','Nome'],['op','Operação'],['cargo','Cargo'],['sup','Supervisor'],['bruto','Premiação bruta',1],['estComp','Estornos',1],['rem','Remanesc.',1],['final','Premiação final',1],['saldoProx','Saldo próx.',1]];
+  return `<div class="row" style="justify-content:space-between;margin-bottom:12px"><div><div class="eyebrow">Folha de premiação · ${UI.mes?mesNome(UI.mes):''}</div><h2 style="font-size:24px;margin:4px 0 0">${L.length} pessoas · ${R$(sum(L,r=>r.final))}</h2></div>
     <div class="row"><input class="in" id="busca" placeholder="Buscar nome, matrícula, supervisor" value="${esc(UI.busca)}" style="min-width:240px"><button class="btn sm" id="expFolha">Exportar Excel</button></div></div>
   <div class="scroll"><table class="dt"><thead><tr>${cols.map(([k,l,n])=>`<th class="${n?'r':''}" data-sort="${k}">${l}${UI.sort.k===k?(UI.sort.d>0?' ▲':' ▼'):''}</th>`).join('')}</tr></thead><tbody>
   ${L.map(r=>`<tr data-ver="${esc(r.mat)}"><td>${esc(r.mat)}</td><td><b>${esc(r.nome)}</b></td><td><span class="sw" style="background:${OPS[r.op].c}"></span>${OPS[r.op].nome}</td><td>${r.cargo}</td><td>${esc(r.sup||'')}</td><td class="r num">${R$(r.bruto)}</td><td class="r num neg">${r.estComp?'-'+R$(r.estComp):'—'}</td><td class="r num neg">${r.rem?'-'+R$(r.rem):'—'}</td><td class="r num"><b>${R$(r.final)}</b></td><td class="r num">${r.saldoProx?R$(r.saldoProx):'—'}</td></tr>`).join('')}
@@ -97,7 +97,7 @@ function mImportar(){
   return `<div class="eyebrow">Importação</div><h2 style="font-size:28px;letter-spacing:-.03em;margin:4px 0 4px">Subir as bases de apuração</h2>
   <p style="color:var(--mut);margin:0 0 14px;font-size:12px;line-height:1.6">Importou, calculou. As colunas são reconhecidas pelo nome (aceita variações como MAT, QTD, VALOR_PLANO). Use os modelos para garantir. ${NUVEM.ativa?'Depois de conferir, clique em <b>Publicar apuração</b>, no topo: os colaboradores passam a ver na hora.':'Depois, vá em <b>Dados (JSON)</b> e baixe o <b>rv.json</b> para publicar para os promotores.'}</p>
   <div class="blk"><div class="row"><b>Competência da apuração:</b><input type="month" class="in" id="impMes" value="${mesPadrao}"><label class="row" style="gap:6px;font-size:12px"><input type="checkbox" id="subst" checked> Substituir os dados existentes (desmarque para somar)</label></div></div>
-  <div class="up destaque">${card('folha','★ Folha de indicadores (modelo consolidado) · recomendado','A planilha "FOLHA RV": uma linha por pessoa com MÊS, MATRICULA, NOME, OPERACAO, CARGO, SUPERVISOR, COORDENADOR, REGIONAL, PERFIL e os indicadores de cada operação. Monta a base HC e os indicadores do mês de uma vez. Pode subir o arquivo inteiro: a aba com MATRICULA é encontrada sozinha. A coluna PREMIACAO TTOAL, se vier, aparece na aba Conferência.',`${DB.hc.length} pessoas na base · ${(M.indicadores||[]).length} linhas de indicadores em ${mesNome(mesPadrao)}`).replace('<div class="up">','<div>')}</div>
+  <div class="up destaque">${card('folha','★ Folha de indicadores (modelo consolidado) · recomendado','A planilha da folha consolidada: uma linha por pessoa com MÊS, MATRICULA, NOME, OPERACAO, CARGO, SUPERVISOR, COORDENADOR, REGIONAL, PERFIL e os indicadores de cada operação. Monta a base HC e os indicadores do mês de uma vez. Pode subir o arquivo inteiro: a aba com MATRICULA é encontrada sozinha. A coluna PREMIACAO TTOAL, se vier, aparece na aba Conferência.',`${DB.hc.length} pessoas na base · ${(M.indicadores||[]).length} linhas de indicadores em ${mesNome(mesPadrao)}`).replace('<div class="up">','<div>')}</div>
   <div class="eyebrow" style="margin:18px 0 8px">Bases detalhadas (opcional, venda a venda)</div>
   <div class="grid2">
     ${card('hc','1 · Base HC','Quem é quem: matrícula, nome, operação, cargo, supervisor, coordenador, equipe (AXS: Convencional/HP), região (Guerrilha: GERAL, RJ/ES, SP1 PLENO, SP1 SENIOR), meta. Vale para todos os meses.',`${DB.hc.length} pessoas na base`)}
@@ -110,7 +110,7 @@ function mImportar(){
 function mRegras(){
   const R=DB.config.rules;
   const tabela=(tit,cols,rows)=>`<div class="blk"><h3>${tit}</h3><div style="height:10px"></div><div class="tblwrap"><table class="ft sm"><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td class="num">${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div></div>`;
-  let h=`<div class="eyebrow">Regras de remuneração</div><h2 style="font-size:28px;letter-spacing:-.03em;margin:4px 0 4px">Tabelas em uso</h2><p style="color:var(--mut);margin:0 0 14px;font-size:12px">Padrão em js/operacoes/*.js. Para ajustar só neste ambiente, edite o JSON abaixo e salve (recalcula na hora e vai junto no rv.json).</p>`;
+  let h=`<div class="eyebrow">Regras de premiação</div><h2 style="font-size:28px;letter-spacing:-.03em;margin:4px 0 4px">Tabelas em uso</h2><p style="color:var(--mut);margin:0 0 14px;font-size:12px">Padrão em js/operacoes/*.js. Para ajustar só neste ambiente, edite o JSON abaixo e salve (recalcula na hora e vai junto no rv.json).</p>`;
   for(const [k,o] of Object.entries(OPS)){
     if(UI.op!=='todas'&&UI.op!==k) continue;
     h+=`<div class="sec" style="margin-top:18px"><h2 style="color:${o.c}">${o.nome}</h2>${TELA_REGRAS[k]&&R[k]?TELA_REGRAS[k](R[k],tabela):'<p>Sem tabela.</p>'}</div>`;
@@ -151,8 +151,8 @@ function bindMaster(){
   const b=$('#busca'); if(b){ b.oninput=e=>{UI.busca=e.target.value; clearTimeout(b._t); b._t=setTimeout(()=>{render(); const nb=$('#busca'); nb.focus(); nb.setSelectionRange(nb.value.length,nb.value.length);},250);}; }
   $('#expFolha')&&($('#expFolha').onclick=()=>{
     const rows=linhasMaster().map(r=>({MATRICULA:r.mat,NOME:r.nome,OPERACAO:OPS[r.op].nome,CARGO:r.cargo,SUPERVISOR:r.sup,COORDENADOR:r.coord,QTD_VENDAS:r.qtdVendas,
-      ...Object.fromEntries(r.componentes.map(c=>[c.label.toUpperCase(),+c.valor.toFixed(2)])),RV_BRUTO:+r.bruto.toFixed(2),ESTORNOS:+r.estComp.toFixed(2),REMANESCENTE:+r.rem.toFixed(2),RV_FINAL:+r.final.toFixed(2),SALDO_PROX_MES:+r.saldoProx.toFixed(2)}));
-    const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'FOLHA RV'); XLSX.writeFile(wb,`folha_rv_${UI.mes}.xlsx`);
+      ...Object.fromEntries(r.componentes.map(c=>[c.label.toUpperCase(),+c.valor.toFixed(2)])),PREMIACAO_BRUTA:+r.bruto.toFixed(2),ESTORNOS:+r.estComp.toFixed(2),REMANESCENTE:+r.rem.toFixed(2),PREMIACAO_FINAL:+r.final.toFixed(2),SALDO_PROX_MES:+r.saldoProx.toFixed(2)}));
+    const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'FOLHA PREMIACAO'); XLSX.writeFile(wb,`folha_premiacao_${UI.mes}.xlsx`);
   });
   // importar
   $('#impMes')&&($('#impMes').onchange=e=>{UI.impMes=e.target.value;render()});
@@ -195,7 +195,7 @@ function mIndicadores(){
   const status = proprio? `<span class="chip c">Configuração própria de ${mesNome(mes)}</span>`
     : orig? `<span class="chip">Herdando de ${mesNome(orig)}</span>` : `<span class="chip">Padrão da operação</span>`;
   return `<div class="eyebrow">Indicadores do mês</div><h2 style="font-size:28px;letter-spacing:-.03em;margin:4px 0 4px">O que vale nesta competência</h2>
-  <p style="color:var(--mut);margin:0 0 14px;font-size:12px;line-height:1.6">Ligue só os indicadores que entram na RV do mês. O que estiver desligado não soma no RV e não aparece para o promotor nem para o supervisor. Um mês sem configuração usa a do último mês configurado.</p>
+  <p style="color:var(--mut);margin:0 0 14px;font-size:12px;line-height:1.6">Ligue só os indicadores que entram na premiação do mês. O que estiver desligado não soma na premiação e não aparece para o promotor nem para o supervisor. Um mês sem configuração usa a do último mês configurado.</p>
   <div class="blk"><div class="row" style="justify-content:space-between">
     <div class="row"><b>Competência</b><input type="month" class="in" id="indMes" value="${mes}"></div>
     <div class="row">${Object.entries(OPS).map(([k,o])=>`<button class="tab opbtn ${k===op?'on':''}" data-indop="${k}" style="${k===op?`background:${o.c};border-color:${o.c}`:''}">${o.nome}</button>`).join('')}</div>
@@ -238,7 +238,7 @@ function mConferencia(){
   const ok=L.filter(r=>Math.abs(dif(r))<0.01), nok=L.filter(r=>Math.abs(dif(r))>=0.01).sort((a,b)=>Math.abs(dif(b))-Math.abs(dif(a)));
   const lista = UI.confTodos? [...nok,...ok] : nok;
   return `<div class="eyebrow">Conferência · ${mesNome(UI.mes)}</div><h2 style="font-size:28px;letter-spacing:-.03em;margin:4px 0 4px">Ferramenta × planilha</h2>
-  <p style="color:var(--mut);margin:0 0 14px;font-size:12px">Compara o RV bruto calculado aqui (antes de estornos) com a coluna PREMIACAO TTOAL da folha importada. Clique numa linha para ver o cálculo.</p>
+  <p style="color:var(--mut);margin:0 0 14px;font-size:12px">Compara a premiação bruta calculada aqui (antes de estornos) com a coluna PREMIACAO TTOAL da folha importada. Clique numa linha para ver o cálculo.</p>
   <div class="kpis"><div class="kpi"><small>Pessoas conferidas</small><b>${L.length}</b></div><div class="kpi"><small>Batem</small><b class="pos">${ok.length}</b></div><div class="kpi"><small>Divergem</small><b class="${nok.length?'neg':''}">${nok.length}</b></div>
   <div class="kpi"><small>Total planilha</small><b class="num">${R$(sum(L,r=>r.ref))}</b></div><div class="kpi"><small>Total ferramenta</small><b class="num">${R$(sum(L,r=>r.bruto))}</b></div></div>
   <div class="row" style="margin-bottom:10px"><label class="row" style="gap:6px;font-size:12px"><input type="checkbox" id="confTodos" ${UI.confTodos?'checked':''}> Mostrar também quem bate</label></div>

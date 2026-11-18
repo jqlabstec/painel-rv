@@ -55,8 +55,8 @@ registrarOperacao('chubb', {
     const nx=R.promotor[i+1];
     let dica='';
     if(nx){ const alvo = usaAt? Math.ceil(nx.ini/100*meta) : nx.ini; const falta=Math.max(0,alvo-qtd);
-      dica=`Faltam <b>${N(falta)} seguro${falta===1?'':'s'}</b> para a próxima faixa. Aí <b>todos</b> passam a valer <b>${R$(abs?nx.c:nx.s)}</b> cada (RV de ${R$(rv)} para ${R$((qtd+falta)*(abs?nx.c:nx.s))}).`; }
-    const comps=[{ind:'seguros', label:'RV seguros', detail:`${N(qtd)} seguros × ${R$(unit)}${abs?' (com ABS)':''}`, valor:rv}];
+      dica=`Faltam <b>${N(falta)} seguro${falta===1?'':'s'}</b> para a próxima faixa. Aí <b>todos</b> passam a valer <b>${R$(abs?nx.c:nx.s)}</b> cada (premiação de ${R$(rv)} para ${R$((qtd+falta)*(abs?nx.c:nx.s))}).`; }
+    const comps=[{ind:'seguros', label:'Premiação seguros', detail:`${N(qtd)} seguros × ${R$(unit)}${abs?' (com ABS)':''}`, valor:rv}];
     const faixas=[{ ind:'seguros', titulo:'Quanto vale cada seguro',
         desc:`O valor por seguro depende do ${usaAt?'% de atingimento da meta':'total de seguros'} no mês e vale para todos.${ctx.A('abs')?' Com ABS no mês, vale a coluna "com ABS".':''}`,
         kpis:[['Seguros no mês',N(qtd)],...(usaAt?[['Atingimento',pctLbl(base/100)]]:[]),['Valor por seguro',R$(unit)],...(ctx.A('abs')?[['ABS',abs?'Sim':'Não']]:[])],

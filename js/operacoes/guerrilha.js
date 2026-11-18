@@ -84,18 +84,18 @@ registrarOperacao('guerrilha', {
     det.sort((a,b)=>String(b.data).localeCompare(String(a.data)));
     const nxC=T.combo[iC+1], nxF=T.flex[iF+1];
     return { qtdVendas:qC+qF, componentes:[
-        {ind:'combo', label:'RV Combo', detail:`${N(qC)} combos × ${R$(fC?fC.un:0)}`, valor:rvC},
-        {ind:'flex', label:'RV Flex', detail:`${N(qF)} flex × ${R$(fF?fF.rec:0)}${semTeto>rvF?` · teto de ${R$(R.tetoFlex)}`:''}`, valor:rvF},
+        {ind:'combo', label:'Premiação Combo', detail:`${N(qC)} combos × ${R$(fC?fC.un:0)}`, valor:rvC},
+        {ind:'flex', label:'Premiação Flex', detail:`${N(qF)} flex × ${R$(fF?fF.rec:0)}${semTeto>rvF?` · teto de ${R$(R.tetoFlex)}`:''}`, valor:rvF},
         {ind:'d60', label:'Valores D60', detail:'lançados na apuração', valor:d60},
         {ind:'contestacoes', label:'Contestações', detail:'valores aprovados', valor:contest}],
       vendasDet:det,
       faixas:[
         { ind:'combo', titulo:`Combo: quanto vale cada combo (${ROTULO_PERFIL[pk]})`, desc:'O valor por combo depende da quantidade de combos ativados no mês e vale para todos.',
-          kpis:[['Combos no mês',N(qC)],['Valor por combo',R$(fC?fC.un:0)],['RV Combo',R$(rvC)]],
+          kpis:[['Combos no mês',N(qC)],['Valor por combo',R$(fC?fC.un:0)],['Premiação Combo',R$(rvC)]],
           cols:['Combos no mês','Valor por combo'], rows:T.combo.map((r,k)=>({cells:[faixaLbl(r),R$(r.un)],you:k===iC,nx:k===iC+1})),
           dica: nxC?`Faltam <b>${N(nxC.ini-qC)} combos</b> para a próxima faixa: todos passam a valer <b>${R$(nxC.un)}</b>.`:'', max:!nxC },
         { ind:'flex', titulo:`Flex: quanto vale cada flex (${ROTULO_PERFIL[pk]})`, desc:`Valor por flex conforme a quantidade no mês, limitado a ${R$(R.tetoFlex)} no mês.`,
-          kpis:[['Flex no mês',N(qF)],['Valor por flex',R$(fF?fF.rec:0)],['RV Flex',R$(rvF)]],
+          kpis:[['Flex no mês',N(qF)],['Valor por flex',R$(fF?fF.rec:0)],['Premiação Flex',R$(rvF)]],
           cols:['Flex no mês','Valor por flex'], rows:T.flex.map((r,k)=>({cells:[faixaLbl(r),R$(r.rec)],you:k===iF,nx:k===iF+1})),
           dica: semTeto>rvF?`Você bateu o teto de ${R$(R.tetoFlex)} de Flex no mês.`: nxF?`Faltam <b>${N(nxF.ini-qF)} flex</b> para a próxima faixa: todos passam a valer <b>${R$(nxF.rec)}</b>.`:'', max:!nxF }],
       estimaEstorno:e=>{ if(norm(e.produto).includes('FLEX')) return (fF?fF.rec:0)*(e.qtd||1); return (fC?fC.un:0)*(e.qtd||1); } };

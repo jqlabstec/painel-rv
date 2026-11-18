@@ -4,9 +4,9 @@ function viewColab(p){
   const r = UI.mes? apurar(UI.mes).pessoas[norm(p.mat)] : null;
   const gestor = cargoKey(p.cargo)!=='promotor';
   const temVendas = r && (r.vendasDet||[]).length>0;
-  const tabs = gestor? [['resumo','Resumo'],['metrica','Métrica de comissão'],['equipe','Minha equipe'],['estornos','Estornos']] : [['resumo','Resumo'],['metrica','Métrica de comissão'],['vendas',temVendas?'Vendas':'Meus indicadores'],['estornos','Estornos']];
+  const tabs = gestor? [['resumo','Resumo'],['metrica','Métrica de premiação'],['equipe','Minha equipe'],['estornos','Estornos']] : [['resumo','Resumo'],['metrica','Métrica de premiação'],['vendas',temVendas?'Vendas':'Meus indicadores'],['estornos','Estornos']];
   const head = `<div class="top"><div class="topin">
-      <div class="brand"><div class="dot"><i></i></div><div><b>Meu RV · ${esc(O.nome)}</b><small style="color:var(--c)">Ambiente ${esc(O.nome)} · ${esc(O.sub)}</small></div></div>
+      <div class="brand"><div class="dot"><i></i></div><div><b>Minha Premiação · ${esc(O.nome)}</b><small style="color:var(--c)">Ambiente ${esc(O.nome)} · ${esc(O.sub)}</small></div></div>
       ${mesSelect()}
       ${UI.verComo?`<button class="btn sm ghost" id="voltarMaster">← Voltar ao master</button>`:`<button class="btn sm ghost" id="sair">Sair</button>`}
     </div><div class="tabs">${tabs.map(([k,l])=>`<button class="tab ${UI.tab===k?'on':''}" data-go="${k}">${l}</button>`).join('')}</div></div>`;
@@ -19,26 +19,26 @@ function viewColab(p){
     <div class="name">${esc(p.nome)}</div>
     <div class="meta">${p.sup&&norm(p.sup)!==norm(p.nome)?`<span>Supervisão <b>${esc(p.sup)}</b></span>`:''}${p.coord&&norm(p.coord)!==norm(p.nome)?`<span>Coordenação <b>${esc(p.coord)}</b></span>`:''}<span>Matrícula <b>${esc(p.mat)}</b></span></div>
     <div class="chips"><span class="chip c">${esc(O.nome)}</span><span class="chip">${esc({promotor:'Promotor',supervisor:'Supervisor',coordenador:'Coordenador'}[cargoKey(p.cargo)])}</span>${(p.perfil||p.equipe)&&!['SUPERVISOR','COORDENADOR'].includes(norm(p.perfil))?`<span class="chip">${esc(p.perfil||p.equipe)}</span>`:''}${(p.regional||p.regiao)?`<span class="chip">${esc(p.regional||p.regiao)}</span>`:''}<span class="chip g">${esc(p.status||'Ativo')}</span></div>
-    <div class="note"><div class="cal">${mesCurto(UI.mes).split('/')[0]}<b>${mesCurto(UI.mes).split('/')[1]}</b></div><div>Você está vendo a <b>apuração de ${mesNome(UI.mes)}</b>: vendas apuradas e estornos lançados nesta competência. Saldos negativos de meses anteriores entram como estorno remanescente.
+    <div class="note"><div class="cal">${mesCurto(UI.mes).split('/')[0]}<b>${mesCurto(UI.mes).split('/')[1]}</b></div><div>Você está vendo a <b>apuração da premiação de ${mesNome(UI.mes)}</b>: vendas apuradas e estornos lançados nesta competência. Saldos negativos de meses anteriores entram como estorno remanescente.
       <div class="chips" style="margin:8px 0 0">${indicadoresDoCargo(op,cargoKey(p.cargo),UI.mes).map(d=>`<span class="chip c">${esc(d.nome)}</span>`).join('')}</div></div></div>`;
   // HERO
   const tot = Math.max(r.bruto,0.01);
   h += `<section id="resumo" class="hero"><div class="l">
-      <div class="lbl">VALOR A RECEBER · RV FINAL</div>
+      <div class="lbl">VALOR A RECEBER · PREMIAÇÃO FINAL</div>
       <div class="val num"><small>R$</small>${N(r.final,2)}</div>
       <div class="sub">Apuração de ${mesNome(UI.mes)}</div>
       <div class="stack">${comp.map((c,k)=>`<i style="width:${Math.max(0,c.valor)/tot*100}%;background:${['#fff','rgba(255,255,255,.65)','rgba(255,255,255,.4)','rgba(255,255,255,.25)'][k%4]}"></i>`).join('')}</div>
       <div class="leg">${comp.filter(c=>c.valor>0).map(c=>`<span>${esc(c.label)} ${R$(c.valor)}</span>`).join('')}<span style="color:#fecaca">Estornos ${R$(r.estComp+r.rem)}</span></div>
-      ${r.saldoProx>0?`<div class="sub" style="margin-top:12px;background:rgba(0,0,0,.2);padding:8px 10px;border-radius:10px">Os estornos passaram do seu RV. <b>${R$(r.saldoProx)}</b> serão descontados na próxima apuração.</div>`:''}
+      ${r.saldoProx>0?`<div class="sub" style="margin-top:12px;background:rgba(0,0,0,.2);padding:8px 10px;border-radius:10px">Os estornos passaram da sua premiação. <b>${R$(r.saldoProx)}</b> serão descontados na próxima apuração.</div>`:''}
     </div><div class="r">
       ${comp.map(c=>`<div class="ln"><div><b>${esc(c.label)}</b><small>${esc(c.detail)}</small></div><div class="v num">${R$(c.valor)}</div></div>`).join('')}
-      <div class="ln"><div><b>RV do mês</b><small>antes dos estornos</small></div><div class="v num">${R$(r.bruto)}</div></div>
+      <div class="ln"><div><b>Premiação do mês</b><small>antes dos estornos</small></div><div class="v num">${R$(r.bruto)}</div></div>
       <div class="ln"><div><b>Estornos da competência</b><small>${r.estornos.length} lançamento(s) em ${mesNome(UI.mes)}</small></div><div class="v neg num">-${R$(r.estComp)}</div></div>
       <div class="ln"><div><b>Estornos remanescentes</b><small>saldo da apuração de ${mesNome(mesAnterior(UI.mes))}</small></div><div class="v neg num">-${R$(r.rem)}</div></div>
-      <div class="ln tot"><div><b>RV final</b><small>apuração de ${mesNome(UI.mes)}</small></div><div class="v num">${R$(r.final)}</div></div>
+      <div class="ln tot"><div><b>Premiação final</b><small>apuração de ${mesNome(UI.mes)}</small></div><div class="v num">${R$(r.final)}</div></div>
     </div></section>`;
   // MÉTRICA
-  h += `<section class="sec" id="metrica"><div class="eyebrow">Métrica de comissionamento</div><h2>Como o seu RV é calculado</h2><p>As mesmas regras da planilha de apuração da ${esc(O.nome)}, com a sua posição em cada faixa.</p>
+  h += `<section class="sec" id="metrica"><div class="eyebrow">Métrica de premiação</div><h2>Como a sua premiação é calculada</h2><p>As mesmas regras da planilha de apuração da ${esc(O.nome)}, com a sua posição em cada faixa.</p>
     ${r.faixas.map(f=>`<div class="blk"><h3>${esc(f.titulo)}</h3><div class="d">${esc(f.desc)}</div>
       <div class="kpis">${f.kpis.map(([l,v])=>`<div class="kpi"><small>${esc(l)}</small><b class="num">${esc(v)}</b></div>`).join('')}</div>
       <div class="tblwrap"><table class="ft"><thead><tr>${f.cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>
@@ -51,9 +51,9 @@ function viewColab(p){
   if(gestor){
     const t=(r.time||[]).slice().sort((a,b)=>b.final-a.final); const mx=Math.max(1,...t.map(x=>x.final));
     h += blocoIndicadores(op, cargoKey(p.cargo), r, 'indicadores-gestor');
-    h += `<section class="sec" id="equipe"><div class="eyebrow">Equipe</div><h2>Minha equipe</h2><p>RV final de cada promotor na apuração de ${mesNome(UI.mes)}.</p>
-      <div class="blk"><div class="kpis"><div class="kpi"><small>Promotores</small><b>${t.length}</b></div><div class="kpi"><small>Produção da equipe</small><b class="num">${op==='axs'?R$0(r.producao):N(r.qtdVendas)}</b></div><div class="kpi"><small>RV da equipe</small><b class="num">${R$(sum(t,x=>x.final))}</b></div><div class="kpi"><small>Estornos da equipe</small><b class="num neg">${R$(sum(t,x=>x.est))}</b></div></div>
-      <table class="dt rk"><thead><tr><th>#</th><th>Promotor</th><th class="r">Produção</th><th style="width:30%"></th><th class="r">RV final</th></tr></thead><tbody>
+    h += `<section class="sec" id="equipe"><div class="eyebrow">Equipe</div><h2>Minha equipe</h2><p>Premiação final de cada promotor na apuração de ${mesNome(UI.mes)}.</p>
+      <div class="blk"><div class="kpis"><div class="kpi"><small>Promotores</small><b>${t.length}</b></div><div class="kpi"><small>Produção da equipe</small><b class="num">${op==='axs'?R$0(r.producao):N(r.qtdVendas)}</b></div><div class="kpi"><small>Premiação da equipe</small><b class="num">${R$(sum(t,x=>x.final))}</b></div><div class="kpi"><small>Estornos da equipe</small><b class="num neg">${R$(sum(t,x=>x.est))}</b></div></div>
+      <table class="dt rk"><thead><tr><th>#</th><th>Promotor</th><th class="r">Produção</th><th style="width:30%"></th><th class="r">Premiação final</th></tr></thead><tbody>
       ${t.map((x,k)=>`<tr><td><span class="medal ${k<3?'m'+(k+1):''}">${k+1}</span></td><td>${esc(x.nome)}</td><td class="r num">${N(x.qtd)}</td><td><div class="bar"><i style="width:${x.final/mx*100}%;background:var(--c)"></i></div></td><td class="r num"><b>${R$(x.final)}</b></td></tr>`).join('')||'<tr><td colspan=5 class="empty">Nenhum promotor vinculado a você na base HC.</td></tr>'}
       </tbody></table></div></section>`;
   } else if(!temVendas){
@@ -61,8 +61,8 @@ function viewColab(p){
   } else {
     const tv=sum(vendasOk,v=>v.valorRv);
     const ord=vendasOk.slice().sort((a,b)=>String(b.data).localeCompare(String(a.data)));
-    h += `<section class="sec" id="vendas"><div class="eyebrow">Vendas</div><h2>Quanto vale cada venda</h2><p>Vendas apuradas em ${mesNome(UI.mes)} e quanto cada uma gerou no seu RV.</p>
-      <div class="blk"><div class="kpis"><div class="kpi"><small>Lançamentos</small><b>${N(vendasOk.length)}</b></div><div class="kpi"><small>Quantidade</small><b>${N(r.qtdVendas)}</b></div><div class="kpi"><small>RV gerado</small><b class="num">${R$(tv)}</b></div></div>
+    h += `<section class="sec" id="vendas"><div class="eyebrow">Vendas</div><h2>Quanto vale cada venda</h2><p>Vendas apuradas em ${mesNome(UI.mes)} e quanto cada uma gerou na sua premiação.</p>
+      <div class="blk"><div class="kpis"><div class="kpi"><small>Lançamentos</small><b>${N(vendasOk.length)}</b></div><div class="kpi"><small>Quantidade</small><b>${N(r.qtdVendas)}</b></div><div class="kpi"><small>Premiação gerada</small><b class="num">${R$(tv)}</b></div></div>
       <div class="list">${ord.slice(0,UI.vendasN).map(v=>`<div class="it"><div><b>${esc(v.produto||'Venda')}${v.port?'<span class="tg g">PORTABILIDADE</span>':''}${v.marco?`<span class="tg">${esc(v.marco)}</span>`:''}</b><small>${fmtData(v.data)}${v.id?' · '+esc(v.id):''} · ${esc(v.calc)}</small></div><div class="v pos num" style="font-weight:800">+${R$(v.valorRv)}</div></div>`).join('')||'<div class="empty">Nenhuma venda nesta apuração.</div>'}</div>
       ${ord.length>UI.vendasN?`<div class="more"><button class="btn sm ghost" id="maisV">Mostrar mais ${Math.min(50,ord.length-UI.vendasN)} de ${ord.length-UI.vendasN}</button></div>`:''}
       </div></section>`;
@@ -73,7 +73,7 @@ function viewColab(p){
     <div class="blk"><div class="kpis"><div class="kpi"><small>Da competência</small><b class="neg num">-${R$(r.estComp)}</b></div><div class="kpi"><small>Remanescentes</small><b class="neg num">-${R$(r.rem)}</b></div><div class="kpi"><small>Total descontado</small><b class="neg num">-${R$(r.estComp+r.rem)}</b></div></div>
     ${Object.keys(grp).sort().reverse().map(k=>`<div style="display:flex;justify-content:space-between;margin:14px 0 4px;font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--mut)"><span>VENDAS DE ${k==='sem data'?'DATA NÃO INFORMADA':mesNome(k).toUpperCase()} · ${grp[k].length}</span><span class="neg">-${R$(sum(grp[k],e=>e.valorCalc))}</span></div>
       <div class="list">${grp[k].map(e=>`<div class="it"><div><b>${esc(e.produto||'Venda')}</b><small>${esc(e.motivo||'Estorno')}${e.id?' · '+esc(e.id):''}${e.dataVenda?' · venda em '+fmtData(e.dataVenda):''}${e.estimado?' · valor calculado pela regra':''}</small></div><div class="neg num" style="font-weight:800">-${R$(e.valorCalc)}</div></div>`).join('')}</div>`).join('')}
-    ${r.rem>0?`<div style="margin:14px 0 4px;font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--mut)">SALDO DE APURAÇÕES ANTERIORES</div><div class="list"><div class="it"><div><b>Estorno remanescente</b><small>Apuração de ${mesNome(mesAnterior(UI.mes))} · estorno que não coube no RV daquela apuração</small></div><div class="neg num" style="font-weight:800">-${R$(r.rem)}</div></div></div>`:''}
+    ${r.rem>0?`<div style="margin:14px 0 4px;font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--mut)">SALDO DE APURAÇÕES ANTERIORES</div><div class="list"><div class="it"><div><b>Estorno remanescente</b><small>Apuração de ${mesNome(mesAnterior(UI.mes))} · estorno que não coube na premiação daquela apuração</small></div><div class="neg num" style="font-weight:800">-${R$(r.rem)}</div></div></div>`:''}
     ${!r.estornos.length&&!r.rem?'<div class="empty">Nenhum estorno nesta apuração. 🎉</div>':''}
     </div></section>
     <div class="foot" style="margin-top:30px">Base atualizada em ${new Date(DB.atualizadoEm).toLocaleString('pt-BR')}. Dúvidas ou contestações: fale com sua supervisão.</div></main>`;

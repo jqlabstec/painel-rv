@@ -1,16 +1,16 @@
 /* Tela de login: chave = 2 primeiras letras do nome + matrícula; ou chave master */
 function viewLogin(){
   return `<div class="login"><div class="lwrap">
-    <div class="brand"><div class="dot"><i></i></div><div><b>Meu RV</b><small>Chubb · CredSystem · AXS · Guerrilha</small></div></div>
-    <div class="eyebrow">Remuneração variável</div>
+    <div class="brand"><div class="dot"><i></i></div><div><b>Minha Premiação</b><small>Chubb · CredSystem · AXS · Guerrilha</small></div></div>
+    <div class="eyebrow">Premiação</div>
     <h1 class="big">Seu resultado na palma da mão.</h1>
-    <p class="lead">Quanto você vai receber, quanto vale cada venda, seus estornos e o que falta para a próxima faixa.</p>
+    <p class="lead">Quanto você vai receber de premiação, quanto vale cada venda, seus estornos e o que falta para a próxima faixa.</p>
     <form class="card lcard" id="flogin">
       <h3>Acessar meu painel</h3><p>Informe sua chave individual para abrir o ambiente da sua operação.</p>
       <label class="lb">Chave de acesso</label>
       <div class="key"><span>⚿</span><input id="chave" autocomplete="off" placeholder="EX: JO70231" autofocus></div>
       <div class="hint">Duas primeiras letras do nome + sua matrícula.</div>
-      <button class="btn">Ver meu RV</button>
+      <button class="btn">Ver minha premiação</button>
       <div class="err" id="lerr"></div>
       <div class="foot">Seus dados não ficam salvos neste dispositivo.</div>
       ${NUVEM.ativa?`<div class="foot"><a href="#" id="abrirMaster">Acesso master</a></div>`:''}

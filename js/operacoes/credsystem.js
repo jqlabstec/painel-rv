@@ -54,7 +54,7 @@ registrarOperacao('credsystem', {
     const nxA=R.aprovacoes[iA+1];
     blocos.push({ ind:'aprovacoes', titulo:'Aprovações: quanto vale cada uma',
       desc:`O valor por aprovação depende do total de aprovações no mês e vale para todas.${R.gatilhoAprovacoes?` Abaixo de ${minimo} aprovações, nenhum indicador é pago.`:''}`,
-      kpis:[['Aprovações',N(apr)],['Repasse por aprovação',R$(fA.rep)],['RV aprovações',R$(apr*fA.rep)]],
+      kpis:[['Aprovações',N(apr)],['Repasse por aprovação',R$(fA.rep)],['Premiação aprovações',R$(apr*fA.rep)]],
       cols:['Aprovações no mês','Repasse por aprovação'],
       rows:R.aprovacoes.map((r,k)=>({cells:[faixaLbl(r),R$(r.rep)],you:k===iA,nx:k===iA+1})),
       dica: nxA?`Faltam <b>${N(nxA.ini-apr)} aprovações</b> para a próxima faixa: todas passam a valer <b>${R$(nxA.rep)}</b>${travado?' e os bônus de ativação, seguros e assiduidade são liberados':''}.`:'', max:!nxA });
@@ -113,9 +113,9 @@ registrarOperacao('credsystem', {
 
   telaRegras(R, tabela){
     const S=R.supervisor||{};
-    return `<p>Promotor: unitário Fat. RV (o que o cliente paga) × repasse. ${R.gatilhoAprovacoes?'Gatilho: abaixo da 1ª faixa de aprovações, nada é pago.':''}</p><div class="grid3">
-      ${tabela('Aprovações',['Faixa','Fat. RV','Repasse'],R.aprovacoes.map(r=>[faixaLbl(r),R$(r.fat),R$(r.rep)]))}
-      ${[['ativacao','% Ativação'],['seguros','% Seguros'],['assiduidade','% Assiduidade']].map(([k,t])=>tabela(t,['Faixa','Fat. RV','Repasse'],R[k].map(r=>[faixaLbl(r,pctLbl),R$(r.fat),R$(r.rep)]))).join('')}
+    return `<p>Promotor: unitário Fat. premiação (o que o cliente paga) × repasse. ${R.gatilhoAprovacoes?'Gatilho: abaixo da 1ª faixa de aprovações, nada é pago.':''}</p><div class="grid3">
+      ${tabela('Aprovações',['Faixa','Fat. premiação','Repasse'],R.aprovacoes.map(r=>[faixaLbl(r),R$(r.fat),R$(r.rep)]))}
+      ${[['ativacao','% Ativação'],['seguros','% Seguros'],['assiduidade','% Assiduidade']].map(([k,t])=>tabela(t,['Faixa','Fat. premiação','Repasse'],R[k].map(r=>[faixaLbl(r,pctLbl),R$(r.fat),R$(r.rep)]))).join('')}
       ${S.aprovacoes?tabela('Supervisor · meta de aprovações',['% da meta','Bônus'],S.aprovacoes.map(r=>[faixaLbl(r,pctLbl),R$(r.v)])):''}
       ${S.ativacao?tabela('Supervisor · ajuste % ativação',['Faixa','Ajuste'],S.ativacao.map(r=>[faixaLbl(r,pctLbl),pctLbl(r.aj)])):''}
       ${S.seguros?tabela('Supervisor · ajuste % seguros',['Faixa','Ajuste'],S.seguros.map(r=>[faixaLbl(r,pctLbl),'+'+pctLbl(r.aj)])):''}</div>`;
