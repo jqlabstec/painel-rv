@@ -70,16 +70,14 @@ function demoKey(op){ const p=DB.hc.find(x=>opKey(x.op)===op&&cargoKey(x.cargo)=
 
 function abrirPainelExterno(sel, k){
   const destino = sel.url.replace(/#.*$/,'') + '#chave=' + encodeURIComponent(k);
-  if(sel.aceitaChave){ location.assign(destino); return; }
-  // painel do colega ainda não lê a chave do link: copia a chave e abre com um clique
-  let copiado=false;
-  try{ navigator.clipboard.writeText(k).then(()=>{ copiado=true; const c=$('#copiado'); if(c) c.textContent='Chave copiada ✓'; }).catch(()=>{}); }catch(e){}
-  $('#lext').innerHTML = `<div class="extbox">
-    <b>Sua premiação de ${esc(sel.nome)} fica em outro painel.</b>
-    <p>Lá, cole a sua chave no campo de acesso:</p>
-    <div class="extkey"><span>${esc(k)}</span><small id="copiado">${copiado?'Chave copiada ✓':''}</small></div>
-    <a class="btn" href="${esc(destino)}" target="_top" rel="noopener">Abrir painel ${esc(sel.nome)} →</a>
-  </div>`;
+  const btn = $('#flogin .btn');
+  if(btn){ btn.disabled=true; btn.textContent=`Abrindo painel ${sel.nome}…`; }
+  if(sel.aceitaChave){ location.assign(destino); return; }   // painel do colega lê a chave do link e entra sozinho
+  // enquanto o painel do colega não lê a chave do link: copia a chave e redireciona na sequência
+  $('#lext').innerHTML = `<div class="hint" style="margin:10px 0 0;text-align:center">Chave <b>${esc(k)}</b> copiada. No painel ${esc(sel.nome)}, é só colar e entrar.</div>`;
+  let foi=false; const ir=()=>{ if(!foi){ foi=true; location.assign(destino); } };
+  try{ navigator.clipboard.writeText(k).then(()=>setTimeout(ir,700), ()=>setTimeout(ir,1500)); }catch(e){ setTimeout(ir,1500); }
+  setTimeout(ir,2500);   // garantia, caso o navegador não responda à cópia
 }
 
 function bindLogin(){
