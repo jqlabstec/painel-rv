@@ -114,7 +114,7 @@ function baixar(nome, conteudo, tipo='application/json'){
    Colunas de identificação: MÊS, MATRICULA, NOME, OPERACAO, CARGO, SUPERVISOR, COORDENADOR, REGIONAL, PERFIL.
    Todas as demais colunas viram indicadores do mês (nome normalizado: MAIÚSCULO, sem acento, espaços → _).
    PREMIACAO TTOAL (se vier) é guardada só para a aba Conferência.
-   QUEBRAS (R$) vira estorno do mês. */
+   QUEBRAS (R$, positivo ou negativo) é descontada como estorno do mês (o motor lê direto da folha). */
 const ID_FOLHA = ['MES','MATRICULA','NOME','OPERACAO','CARGO','SUPERVISOR','COORDENADOR','REGIONAL','PERFIL'];
 function linhaNormalizada(r){ const o={}; for(const [h,v] of Object.entries(r||{})) o[hnorm(h)]=v; return o; }
 function mesDaCelula(v){ const d=toDate(v); const m=String(d).match(/^(\d{4})-(\d{2})/); return m? `${m[1]}-${m[2]}` : ''; }
@@ -145,10 +145,10 @@ async function importarFolha(file, mesPadrao, substituir){
     const alvo=DB.meses[mes];
     const mats=new Set(lista.map(x=>norm(x.mat)));
     alvo.indicadores = (substituir? (alvo.indicadores||[]).filter(x=>!ops.includes(opKey((hcMap()[norm(x.mat)]||{}).op))) : (alvo.indicadores||[]).filter(x=>!mats.has(norm(x.mat)))).concat(lista);
-    const quebras = lista.filter(x=>toNum(x.QUEBRAS)>0).map(x=>({mat:x.mat, dataVenda:'', id:'', produto:'Quebra', qtd:1, valor:toNum(x.QUEBRAS), valorVenda:0, motivo:'Quebra lançada na folha'}));
-    alvo.estornos = (alvo.estornos||[]).filter(e=>!(e.motivo==='Quebra lançada na folha' && mats.has(norm(e.mat)))).concat(quebras);
+    alvo.estornos = (alvo.estornos||[]).filter(e=>!(e.motivo==='Quebra lançada na folha' && mats.has(norm(e.mat))));
+    const quebras = lista.filter(x=>Math.abs(toNum(x.QUEBRAS))>=0.005);
     alvo.importadoEm=new Date().toISOString();
-    log.push(`Competência ${mesNome(mes)}: ${lista.length} linhas de indicadores${quebras.length?` · ${quebras.length} quebra(s) como estorno`:''}.`);
+    log.push(`Competência ${mesNome(mes)}: ${lista.length} linhas de indicadores${quebras.length?` · ${quebras.length} pessoa(s) com quebra (descontada da premiação final)`:''}.`);
   }
   const cont={}; novos.forEach(p=>{ const k=OPS[p.op].nome+' · '+p.cargo; cont[k]=(cont[k]||0)+1; });
   log.push('Pessoas por operação/cargo: '+Object.entries(cont).map(([k,v])=>`${k}: ${v}`).join(' | '));

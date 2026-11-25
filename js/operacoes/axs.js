@@ -22,6 +22,11 @@ registrarOperacao('axs', {
     supervisor: [['MENSALIDADES','Mensalidades','r$'],['META_MENSALIDADES','Meta','r$'],['%ICM_MENSALIDADES','% ICM','%'],['FTE','FTE','n2'],['%QUADRO','% Quadro','%'],['FTE_ZERADOS_30_DIAS','FTE zerados','n2']],
   },
 
+  colunasPremio: {
+    supervisor: [['PREM_%ICM_MENSALIDADE','Prêmio % ICM mensalidades','icm_receita'],['BONUS_QUADRO','Bônus quadro','quadro'],['DEFLATOR_ZERADOS','Deflator FTE zerado','deflator']],
+    rotulo: { promotor:'Premiação mensalidades', supervisor:'Premiação supervisão' },
+  },
+
   regras: {
     convencional: [
       {ini:2500,fin:2999,p:.048},{ini:3000,fin:3499,p:.055},{ini:3500,fin:3999,p:.06},{ini:4000,fin:4499,p:.065},

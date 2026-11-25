@@ -186,3 +186,10 @@ textarea.in{width:100%;min-height:300px;font-family:ui-monospace,monospace;font-
 .extkey small{font-size:11px;color:var(--ok);font-weight:700}
 .extbox a.btn{display:block;text-align:center;text-decoration:none}
 @media(max-width:420px){.opgrid{grid-template-columns:1fr}}
+
+/* ---------- premiação exibida (planilha × cálculo) ---------- */
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:12px;padding:3px;background:var(--bg);gap:3px}
+.seg button{border:0;background:transparent;padding:8px 12px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;color:var(--mut)}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.seg button:disabled{opacity:.4;cursor:default}
+.blk.fonte{border-color:#d4d4d8}

@@ -24,6 +24,11 @@ registrarOperacao('chubb', {
     coordenador:[['SEG_CHUB','Seguros da coordenação','n'],['PROD_SEG_CHUBB','Produtividade','n1']],
   },
 
+  colunasPremio: {
+    promotor: [['BONUS_LIDER','Bônus líder','lider']],
+    rotulo: { promotor:'Premiação seguros', supervisor:'Bônus supervisão', coordenador:'Bônus coordenação' },
+  },
+
   regras: {
     baseFaixa: 'quantidade',               // 'quantidade' (seguros no mês) ou 'atingimento' (% da meta)
     promotor: [

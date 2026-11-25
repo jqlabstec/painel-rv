@@ -25,6 +25,11 @@ registrarOperacao('credsystem', {
     supervisor: [['META_APROV','Meta de aprovações','n'],['APROVADOS','Aprovações','n'],['%ATIVADOS','% Ativação','%'],['%SEGUROS_CRED','% Seguros','%']],
   },
 
+  colunasPremio: {
+    promotor: [['RV_APROVACAO','Aprovações','aprovacoes'],['RV_ATIVADO','Bônus ativação','ativacao'],['RV_SEGURO','Bônus seguros','seguros'],['RV_ASSIDUIDADE','Bônus assiduidade','assiduidade']],
+    rotulo: { promotor:'Premiação CredSystem', supervisor:'Premiação supervisão' },
+  },
+
   regras: {
     gatilhoAprovacoes: true,   // abaixo da 1ª faixa paga de aprovações, zera tudo
     aprovacoes: [

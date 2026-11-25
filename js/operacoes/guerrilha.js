@@ -40,6 +40,15 @@ registrarOperacao('guerrilha', {
                  ['%ICM_CONTROLE','% ICM controle','%'],['%ICM_COMBO','% ICM combo','%'],['%QUEBRA_CONC_FINANCEIRA','% Quebra conciliação','%']],
   },
 
+  // colunas de prêmio da planilha oficial (modo "planilha"): [COLUNA, rótulo, indicador]
+  colunasPremio: {
+    promotor:   [['PREM_COMBO','Premiação Combo','combo'],['PREM_FLEX','Premiação Flex','flex'],['VALORES_D60','Valores D60','d60'],['CONTESTACOES','Contestações','contestacoes']],
+    supervisor: [['PREM_%ICM_CONTROLE','% Meta geral controle','meta_controle'],['PREM_%ICM_COMBO','% Meta geral combo','meta_combo'],
+                 ['PREM_GESTAO_HC_CONTROLE','Gestão por HC · controle','gestao_hc_controle'],['PREM_GESTAO_HC_COMBO','Gestão por HC · combo','gestao_hc_combo'],
+                 ['PREM_CONCILIACAO','Conciliação financeira','conciliacao']],
+    rotulo: { promotor:'Premiação Guerrilha', supervisor:'Premiação supervisão' },
+  },
+
   regras: {
     tetoFlex: 1200,
     perfis: {

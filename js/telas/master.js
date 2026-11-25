@@ -14,6 +14,7 @@ function viewMaster(){
   let body='';
   const demo = DB.demo?`<div class="demo">Você está vendo <b>dados de demonstração</b>. Importe suas bases em "Importar bases" para substituir.</div>`:'';
   if(NUVEM.ativa && temAlteracaoNaoPublicada() && DB.hc.length) body+=`<div class="demo" style="background:#fffbeb;border-color:#fde68a;color:#92400e">Há alterações que os colaboradores ainda não veem. Confira e clique em <b>Publicar apuração</b>, no topo.</div>`;
+  if(['geral','folha','conferencia','ranking'].includes(UI.mtab) && UI.mes) body+=blocoFonte();
   if(UI.mtab==='geral') body+=mGeral();
   if(UI.mtab==='ranking') body+=mRanking();
   if(UI.mtab==='folha') body+=mFolha();
@@ -45,7 +46,7 @@ function mGeral(){
     <div class="leg"><span>Pago ${P(T.final/Math.max(1,T.bruto))}</span><span style="color:#fca5a5">Estornado ${P((T.est+T.rem)/Math.max(1,T.bruto))}</span></div>
   </div><div class="r">
     <div class="ln"><div><b>Premiação bruta</b><small>antes dos estornos</small></div><div class="v num">${R$(T.bruto)}</div></div>
-    <div class="ln"><div><b>Estornos / quebras da competência</b><small>${sum(L,r=>r.estornos.length)} lançamentos</small></div><div class="v neg num">-${R$(T.est)}</div></div>
+    <div class="ln"><div><b>Estornos e quebras da competência</b><small>${sum(L,r=>r.estornos.filter(e=>!e.jaDescontado).length)} lançamentos · quebras ${R$(sum(L,r=>r.quebras||0))}</small></div><div class="v neg num">-${R$(T.est)}</div></div>
     <div class="ln"><div><b>Estornos remanescentes</b><small>saldos de ${mesNome(mesAnterior(UI.mes))}</small></div><div class="v neg num">-${R$(T.rem)}</div></div>
     <div class="ln"><div><b>Saldo a carregar</b><small>estorno maior que a premiação, desconta no próximo mês</small></div><div class="v num">${R$(T.saldo)}</div></div>
     <div class="ln tot"><div><b>Premiação final a pagar</b><small>${mesNome(UI.mes)}</small></div><div class="v num">${R$(T.final)}</div></div>
@@ -151,7 +152,7 @@ function bindMaster(){
   const b=$('#busca'); if(b){ b.oninput=e=>{UI.busca=e.target.value; clearTimeout(b._t); b._t=setTimeout(()=>{render(); const nb=$('#busca'); nb.focus(); nb.setSelectionRange(nb.value.length,nb.value.length);},250);}; }
   $('#expFolha')&&($('#expFolha').onclick=()=>{
     const rows=linhasMaster().map(r=>({MATRICULA:r.mat,NOME:r.nome,OPERACAO:OPS[r.op].nome,CARGO:r.cargo,SUPERVISOR:r.sup,COORDENADOR:r.coord,QTD_VENDAS:r.qtdVendas,
-      ...Object.fromEntries(r.componentes.map(c=>[c.label.toUpperCase(),+c.valor.toFixed(2)])),PREMIACAO_BRUTA:+r.bruto.toFixed(2),ESTORNOS:+r.estComp.toFixed(2),REMANESCENTE:+r.rem.toFixed(2),PREMIACAO_FINAL:+r.final.toFixed(2),SALDO_PROX_MES:+r.saldoProx.toFixed(2)}));
+      ...Object.fromEntries(r.componentes.map(c=>[c.label.toUpperCase(),+c.valor.toFixed(2)])),FONTE:r.oficial?'PLANILHA':'CALCULO',PREMIACAO_BRUTA:+r.bruto.toFixed(2),QUEBRAS:+(r.quebras||0).toFixed(2),ESTORNOS:+r.estComp.toFixed(2),REMANESCENTE:+r.rem.toFixed(2),PREMIACAO_FINAL:+r.final.toFixed(2),SALDO_PROX_MES:+r.saldoProx.toFixed(2)}));
     const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(rows),'FOLHA PREMIACAO'); XLSX.writeFile(wb,`folha_premiacao_${UI.mes}.xlsx`);
   });
   // importar
@@ -176,6 +177,8 @@ function bindMaster(){
   $('#delMes')&&($('#delMes').onclick=()=>{ const m=$('#delMesSel').value; if(!m) return; confirmar(`Apagar a competência ${mesNome(m)}? Vendas, estornos e indicadores desse mês saem da base.`,()=>{ delete DB.meses[m]; saveLocal(); UI.mes=null; render(); }); });
   $('#zerar')&&($('#zerar').onclick=()=>confirmar('Apagar HC e todas as competências deste navegador? As regras são mantidas.',()=>{ const c=DB.config; DB=emptyDB(); DB.config=c; saveLocal(); UI.mes=null; render(); }));
   bindIndicadores(); bindConferencia();
+  $$('[data-fonte]').forEach(b=>b.onclick=()=>{ DB.config.fonte=DB.config.fonte||{}; DB.config.fonte[UI.mes]=b.dataset.fonte; saveLocal(); render(); });
+  $('#qDesc')&&($('#qDesc').onchange=e=>{ DB.config.planilhaDescontaQuebras=e.target.checked; saveLocal(); render(); });
   $('#publicar')&&($('#publicar').onclick=()=>confirmar(`Publicar a base atual para todos os colaboradores?<br><br>${DB.hc.length} pessoas · competências: ${mesesDisponiveis().map(mesCurto).join(', ')||'—'}.<br>A versão anterior fica guardada no histórico.`, async()=>{
     const b=$('#publicar'); b.disabled=true; b.textContent='Publicando…';
     try{ await publicarApuracao(); render(); aviso('Apuração publicada. Os colaboradores já veem.'); }
@@ -234,18 +237,18 @@ function mConferencia(){
   if(!UI.mes) return `<div class="empty">Nenhuma apuração ainda.</div>`;
   const L=linhasMaster().filter(r=>r.ref!=null);
   if(!L.length) return `<div class="empty">Esta competência não tem a coluna PREMIACAO TTOAL. Importe a folha consolidada com essa coluna para conferir.</div>`;
-  const dif=r=>r.bruto-r.ref;
+  const dif=r=>r.brutoCalc-r.ref;
   const ok=L.filter(r=>Math.abs(dif(r))<0.01), nok=L.filter(r=>Math.abs(dif(r))>=0.01).sort((a,b)=>Math.abs(dif(b))-Math.abs(dif(a)));
   const lista = UI.confTodos? [...nok,...ok] : nok;
   return `<div class="eyebrow">Conferência · ${mesNome(UI.mes)}</div><h2 style="font-size:28px;letter-spacing:-.03em;margin:4px 0 4px">Ferramenta × planilha</h2>
-  <p style="color:var(--mut);margin:0 0 14px;font-size:12px">Compara a premiação bruta calculada aqui (antes de estornos) com a coluna PREMIACAO TTOAL da folha importada. Clique numa linha para ver o cálculo.</p>
+  <p style="color:var(--mut);margin:0 0 14px;font-size:12px">Compara o cálculo da ferramenta pelos indicadores (antes de estornos e quebras) com a coluna PREMIACAO TTOAL da folha. Serve para achar diferenças de regra; o que vale para pagamento é o escolhido em "Premiação exibida". Clique numa linha para ver o cálculo.</p>
   <div class="kpis"><div class="kpi"><small>Pessoas conferidas</small><b>${L.length}</b></div><div class="kpi"><small>Batem</small><b class="pos">${ok.length}</b></div><div class="kpi"><small>Divergem</small><b class="${nok.length?'neg':''}">${nok.length}</b></div>
-  <div class="kpi"><small>Total planilha</small><b class="num">${R$(sum(L,r=>r.ref))}</b></div><div class="kpi"><small>Total ferramenta</small><b class="num">${R$(sum(L,r=>r.bruto))}</b></div></div>
+  <div class="kpi"><small>Total planilha</small><b class="num">${R$(sum(L,r=>r.ref))}</b></div><div class="kpi"><small>Total ferramenta</small><b class="num">${R$(sum(L,r=>r.brutoCalc))}</b></div></div>
   <div class="row" style="margin-bottom:10px"><label class="row" style="gap:6px;font-size:12px"><input type="checkbox" id="confTodos" ${UI.confTodos?'checked':''}> Mostrar também quem bate</label></div>
   <div class="scroll"><table class="dt"><thead><tr><th>Nome</th><th>Operação</th><th>Cargo</th><th>Perfil / regional</th><th class="r">Planilha</th><th class="r">Ferramenta</th><th class="r">Diferença</th><th>Composição na ferramenta</th></tr></thead><tbody>
   ${lista.map(r=>{const d=dif(r); return `<tr data-ver="${esc(r.mat)}"><td><b>${esc(r.nome)}</b></td><td><span class="sw" style="background:${OPS[r.op].c}"></span>${OPS[r.op].nome}</td><td>${r.cargo}</td><td>${esc([r.perfil,r.regional].filter(Boolean).join(' · '))}</td>
-    <td class="r num">${R$(r.ref)}</td><td class="r num">${R$(r.bruto)}</td><td class="r num ${Math.abs(d)<0.01?'pos':'neg'}">${Math.abs(d)<0.01?'✓':(d>0?'+':'')+R$(d)}</td>
-    <td style="white-space:normal;min-width:260px;color:var(--mut)">${r.componentes.filter(c=>c.valor).map(c=>`${esc(c.label)} ${R$(c.valor)}`).join(' · ')||'—'}</td></tr>`}).join('')||'<tr><td colspan=8 class="empty">Tudo batendo. 🎉</td></tr>'}
+    <td class="r num">${R$(r.ref)}</td><td class="r num">${R$(r.brutoCalc)}</td><td class="r num ${Math.abs(d)<0.01?'pos':'neg'}">${Math.abs(d)<0.01?'✓':(d>0?'+':'')+R$(d)}</td>
+    <td style="white-space:normal;min-width:260px;color:var(--mut)">${(r.componentesCalc||r.componentes).filter(c=>c.valor).map(c=>`${esc(c.label)} ${R$(c.valor)}`).join(' · ')||'—'}</td></tr>`}).join('')||'<tr><td colspan=8 class="empty">Tudo batendo. 🎉</td></tr>'}
   </tbody></table></div>`;
 }
 function bindConferencia(){ $('#confTodos')&&($('#confTodos').onchange=e=>{UI.confTodos=e.target.checked;render()}); }
@@ -259,4 +262,23 @@ function blocoPublicar(){
 function aviso(msg, erro){
   const d=document.createElement('div'); d.className='toast'+(erro?' err':''); d.textContent=msg; document.body.appendChild(d);
   setTimeout(()=>d.classList.add('on'),10); setTimeout(()=>{d.classList.remove('on'); setTimeout(()=>d.remove(),300)}, erro?7000:3500);
+}
+
+/* ---------- Premiação exibida: planilha oficial × cálculo da ferramenta ---------- */
+function blocoFonte(){
+  const tem=mesTemPlanilha(UI.mes), f=fontePremiacao(UI.mes);
+  const L=Object.values(apurar(UI.mes).pessoas);
+  const semRef=L.filter(r=>r.ref==null).length;
+  return `<div class="blk fonte"><div class="row" style="justify-content:space-between;gap:14px">
+    <div style="min-width:240px;flex:1"><b>Premiação exibida em ${mesNome(UI.mes)}</b>
+      <div class="d" style="margin:4px 0 0">${f==='planilha'
+        ? `Vale o total da <b>planilha oficial</b> (coluna PREMIACAO TTOAL), menos quebras e estornos. É o que os colaboradores veem e o que vai para pagamento.${semRef?` ${semRef} pessoa(s) sem valor na planilha usam o cálculo.`:''}`
+        : tem? 'Vale o <b>cálculo da ferramenta</b> pelos indicadores. A planilha oficial fica só na aba Conferência.'
+             : 'Esta competência não tem a coluna PREMIACAO TTOAL: vale o cálculo da ferramenta.'}</div></div>
+    <div class="seg">
+      <button data-fonte="planilha" class="${f==='planilha'?'on':''}" ${tem?'':'disabled'}>Planilha oficial</button>
+      <button data-fonte="calculo" class="${f==='calculo'?'on':''}">Cálculo da ferramenta</button>
+    </div></div>
+    ${f==='planilha'?`<label class="row" style="gap:6px;font-size:12px;margin-top:10px"><input type="checkbox" id="qDesc" ${DB.config.planilhaDescontaQuebras?'checked':''}> A PREMIACAO TTOAL da planilha já vem com as quebras descontadas (não descontar de novo)</label>`:''}
+  </div>`;
 }

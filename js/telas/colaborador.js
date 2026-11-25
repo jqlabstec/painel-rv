@@ -26,19 +26,19 @@ function viewColab(p){
   h += `<section id="resumo" class="hero"><div class="l">
       <div class="lbl">VALOR A RECEBER · PREMIAÇÃO FINAL</div>
       <div class="val num"><small>R$</small>${N(r.final,2)}</div>
-      <div class="sub">Apuração de ${mesNome(UI.mes)}</div>
+      <div class="sub">${r.oficial?`Valor oficial da apuração de ${mesNome(UI.mes)}`:`Apuração de ${mesNome(UI.mes)}`}</div>
       <div class="stack">${comp.map((c,k)=>`<i style="width:${Math.max(0,c.valor)/tot*100}%;background:${['#fff','rgba(255,255,255,.65)','rgba(255,255,255,.4)','rgba(255,255,255,.25)'][k%4]}"></i>`).join('')}</div>
-      <div class="leg">${comp.filter(c=>c.valor>0).map(c=>`<span>${esc(c.label)} ${R$(c.valor)}</span>`).join('')}<span style="color:#fecaca">Estornos ${R$(r.estComp+r.rem)}</span></div>
+      <div class="leg">${comp.filter(c=>c.valor>0).map(c=>`<span>${esc(c.label)} ${R$(c.valor)}</span>`).join('')}<span style="color:#fecaca">Estornos e quebras ${R$(r.estComp+r.rem)}</span></div>
       ${r.saldoProx>0?`<div class="sub" style="margin-top:12px;background:rgba(0,0,0,.2);padding:8px 10px;border-radius:10px">Os estornos passaram da sua premiação. <b>${R$(r.saldoProx)}</b> serão descontados na próxima apuração.</div>`:''}
     </div><div class="r">
       ${comp.map(c=>`<div class="ln"><div><b>${esc(c.label)}</b><small>${esc(c.detail)}</small></div><div class="v num">${R$(c.valor)}</div></div>`).join('')}
       <div class="ln"><div><b>Premiação do mês</b><small>antes dos estornos</small></div><div class="v num">${R$(r.bruto)}</div></div>
-      <div class="ln"><div><b>Estornos da competência</b><small>${r.estornos.length} lançamento(s) em ${mesNome(UI.mes)}</small></div><div class="v neg num">-${R$(r.estComp)}</div></div>
+      <div class="ln"><div><b>Estornos e quebras da competência</b><small>${r.quebras&&!r.estornos.some(e=>e.jaDescontado)?`quebras ${R$(r.quebras)} · `:''}${r.estornos.filter(e=>!e.jaDescontado).length} lançamento(s) em ${mesNome(UI.mes)}</small></div><div class="v neg num">-${R$(r.estComp)}</div></div>
       <div class="ln"><div><b>Estornos remanescentes</b><small>saldo da apuração de ${mesNome(mesAnterior(UI.mes))}</small></div><div class="v neg num">-${R$(r.rem)}</div></div>
       <div class="ln tot"><div><b>Premiação final</b><small>apuração de ${mesNome(UI.mes)}</small></div><div class="v num">${R$(r.final)}</div></div>
     </div></section>`;
   // MÉTRICA
-  h += `<section class="sec" id="metrica"><div class="eyebrow">Métrica de premiação</div><h2>Como a sua premiação é calculada</h2><p>As mesmas regras da planilha de apuração da ${esc(O.nome)}, com a sua posição em cada faixa.</p>
+  h += `<section class="sec" id="metrica"><div class="eyebrow">Métrica de premiação</div><h2>Como a sua premiação é calculada</h2><p>${r.oficial?`O valor a receber vem da planilha oficial de apuração da ${esc(O.nome)}. Abaixo, a sua posição em cada faixa pelas regras do mês.`:`As mesmas regras da planilha de apuração da ${esc(O.nome)}, com a sua posição em cada faixa.`}</p>
     ${r.faixas.map(f=>`<div class="blk"><h3>${esc(f.titulo)}</h3><div class="d">${esc(f.desc)}</div>
       <div class="kpis">${f.kpis.map(([l,v])=>`<div class="kpi"><small>${esc(l)}</small><b class="num">${esc(v)}</b></div>`).join('')}</div>
       <div class="tblwrap"><table class="ft"><thead><tr>${f.cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>
@@ -68,11 +68,12 @@ function viewColab(p){
       </div></section>`;
   }
   // ESTORNOS
-  const grp={}; r.estornos.forEach(e=>{ const k=(e.dataVenda||'').slice(0,7)||'sem data'; (grp[k]=grp[k]||[]).push(e); });
+  const grp={}; r.estornos.forEach(e=>{ const k=e.quebra?'quebras':((e.dataVenda||'').slice(0,7)||'sem data'); (grp[k]=grp[k]||[]).push(e); });
+  const tituloGrp = k=> k==='quebras'? 'QUEBRAS DO MÊS' : k==='sem data'? 'VENDAS COM DATA NÃO INFORMADA' : 'VENDAS DE '+mesNome(k).toUpperCase();
   h += `<section class="sec" id="estornos"><div class="eyebrow">Estornos</div><h2>O que foi descontado</h2><p>Vendas canceladas, inadimplentes ou quebras, e saldos de apurações anteriores.</p>
     <div class="blk"><div class="kpis"><div class="kpi"><small>Da competência</small><b class="neg num">-${R$(r.estComp)}</b></div><div class="kpi"><small>Remanescentes</small><b class="neg num">-${R$(r.rem)}</b></div><div class="kpi"><small>Total descontado</small><b class="neg num">-${R$(r.estComp+r.rem)}</b></div></div>
-    ${Object.keys(grp).sort().reverse().map(k=>`<div style="display:flex;justify-content:space-between;margin:14px 0 4px;font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--mut)"><span>VENDAS DE ${k==='sem data'?'DATA NÃO INFORMADA':mesNome(k).toUpperCase()} · ${grp[k].length}</span><span class="neg">-${R$(sum(grp[k],e=>e.valorCalc))}</span></div>
-      <div class="list">${grp[k].map(e=>`<div class="it"><div><b>${esc(e.produto||'Venda')}</b><small>${esc(e.motivo||'Estorno')}${e.id?' · '+esc(e.id):''}${e.dataVenda?' · venda em '+fmtData(e.dataVenda):''}${e.estimado?' · valor calculado pela regra':''}</small></div><div class="neg num" style="font-weight:800">-${R$(e.valorCalc)}</div></div>`).join('')}</div>`).join('')}
+    ${Object.keys(grp).sort((a,b)=>a==='quebras'?-1:b==='quebras'?1:b.localeCompare(a)).map(k=>`<div style="display:flex;justify-content:space-between;margin:14px 0 4px;font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--mut)"><span>${tituloGrp(k)} · ${grp[k].length}</span><span class="neg">-${R$(sum(grp[k],e=>e.valorCalc))}</span></div>
+      <div class="list">${grp[k].map(e=>`<div class="it"><div><b>${esc(e.produto||'Venda')}</b><small>${esc(e.motivo||'Estorno')}${e.id?' · '+esc(e.id):''}${e.dataVenda?' · venda em '+fmtData(e.dataVenda):''}${e.estimado&&!e.quebra?' · valor calculado pela regra':''}${e.jaDescontado?' · já descontada no total oficial':''}</small></div><div class="neg num" style="font-weight:800">-${R$(e.valorCalc)}</div></div>`).join('')}</div>`).join('')}
     ${r.rem>0?`<div style="margin:14px 0 4px;font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--mut)">SALDO DE APURAÇÕES ANTERIORES</div><div class="list"><div class="it"><div><b>Estorno remanescente</b><small>Apuração de ${mesNome(mesAnterior(UI.mes))} · estorno que não coube na premiação daquela apuração</small></div><div class="neg num" style="font-weight:800">-${R$(r.rem)}</div></div></div>`:''}
     ${!r.estornos.length&&!r.rem?'<div class="empty">Nenhum estorno nesta apuração. 🎉</div>':''}
     </div></section>

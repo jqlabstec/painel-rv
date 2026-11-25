@@ -24,6 +24,7 @@ const GESTOR = {};         // cálculo de supervisor/coordenador por operação
 const TELA_REGRAS = {};    // tabelas exibidas na aba Regras
 const IND_DEF = {};        // indicadores disponíveis por operação
 const CAMPOS = {};         // colunas da folha exibidas por cargo
+const COLS_PREMIO = {};    // colunas de prêmio da planilha oficial, por cargo
 const MASTER_THEME = { c:'#18181b', c2:'#3f3f46', soft:'#f4f4f5' };
 const VERSAO_REGRAS = 2;   // suba quando mudar regras padrão: força a recarga das tabelas salvas
 const DEFAULT_CONFIG = { masterKey:'MASTER2026', versaoRegras:VERSAO_REGRAS, rules: DEFAULT_RULES, indicadores:{} };
@@ -36,6 +37,7 @@ function registrarOperacao(chave, def){
   if(def.telaRegras) TELA_REGRAS[chave] = def.telaRegras;
   IND_DEF[chave] = def.indicadores||[];
   CAMPOS[chave] = def.campos||{};
+  COLS_PREMIO[chave] = def.colunasPremio||{};
 }
 
 /* ---------- Indicadores ativos por competência ----------
@@ -53,6 +55,18 @@ function indicadoresAtivos(op, mes){
   return base;
 }
 function ctxIndicadores(op, mes){ const at=indicadoresAtivos(op,mes); return { mes, ativos:at, A:id=>at[id]!==false }; }
+
+/* ---------- Fonte da premiação por competência ----------
+   'planilha' → vale a PREMIACAO TTOAL da folha importada (oficial, vai para pagamento)
+   'calculo'  → vale o cálculo da ferramenta pelos indicadores
+   DB.config.fonte = { 'AAAA-MM': 'planilha'|'calculo' }. Sem escolha: planilha, se o mês tiver a coluna. */
+const REF_TOTAL = ['PREMIACAO_TTOAL','PREMIACAO_TOTAL','RV_TOTAL','TOTAL_RV'];
+function mesTemPlanilha(mes){ return ((DB.meses[mes]||{}).indicadores||[]).some(l=>F(l,...REF_TOTAL)!==undefined); }
+function fontePremiacao(mes){
+  const f=((DB&&DB.config.fonte)||{})[mes];
+  if(f==='calculo') return 'calculo';
+  return mesTemPlanilha(mes)? 'planilha' : 'calculo';
+}
 
 /* ---------- Leitura de campos da folha (colunas normalizadas: MAIÚSCULO, sem acento, _ ) ---------- */
 function F(ind, ...keys){ if(!ind) return undefined; for(const k of keys){ const v=ind[k]; if(v!==undefined&&v!==null&&v!==''&&v!=='-') return v; } return undefined; }
